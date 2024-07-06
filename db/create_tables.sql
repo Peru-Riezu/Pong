@@ -21,7 +21,8 @@ create table user_t
 	password char(32) not null, /* stored hashed */
 	session_token char(32) default null,
 	session_token_expieres timestamp default null,
-	session_manager_id integer default null, /* id of api worker handeling the incoming messages */
+	incoming_message_manager_id integer default null, /* id of api worker handeling the incoming messages */
+	match_event_manager_id integer default null, /* id of api worker handeling the incoming match events */
 	messages_pending boolean default false not null,
 	nick_name varchar(30) not null,
 	join_date timestamp not null,
@@ -72,6 +73,7 @@ create table ban_t
 create table group_chat_t
 (
 	id bigserial primary key,
+	owner_name char(7) references user_t(name) not null,
 	name varchar(30)
 );
 
@@ -86,7 +88,6 @@ create table group_chat_subscription_t
 (
 	subscriber char(7) references user_t(name) not null,
 	group_chat_id bigint references group_chat_t(id) not null,
-	owner boolean not null default false,
 	admin boolean not null default false
 );
 
@@ -121,6 +122,7 @@ create table match_t
 (
 	id bigserial primary key,
 	tournament_id bigint references tournament_t(id) default null,
+	match_overseer_id integer default null, /* id of api worker overseeing the match */
 	player1_name char(7) references user_t(name) not null,
 	player2_name char(7) references user_t(name) not null,
 	player1_score integer not null default 0,
