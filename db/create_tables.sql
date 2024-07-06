@@ -1,4 +1,6 @@
-drop table oponent_actions_t cascade;
+drop table set_t cascade;
+drop table match_actions_t cascade;
+drop table match_invite_t;
 drop table match_t cascade;
 drop table tournament_subscription_t cascade;
 drop table tournament_invite_t cascade;
@@ -19,45 +21,52 @@ create table user_t
 	password char(32) not null, /* stored hashed */
 	session_token char(32) default null,
 	session_token_expieres timestamp default null,
+	session_manager_id integer default null, /* id of api worker handeling the incoming messages */
 	messages_pending boolean default false not null,
 	nick_name varchar(30) not null,
 	join_date timestamp not null,
 	profile_picture bytea default null,
 	bio varchar(1024) default null,
-	is_online boolean not null default false,
 	normal_matches_won integer not null default 0,
 	normal_matches_lost integer not null default 0,
 	normal_matches_drawn integer not null default 0,
 	tournament_matches_won integer not null default 0,
 	tournament_matches_lost integer not null default 0,
 	tournament_matches_drawn integer not null default 0,
-	tournaments_won integer not null default 0
+	tournaments_won integer not null default 0,
 	tournaments_played integer not null default 0
 );
-insert into user_t (name, password, nick_name, join_date, email) values
-('1', '', 'Guest', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
-('2', '', 'Local player', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
-('3', '', 'AI oponent easy', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
-('4', '', 'AI oponent medium', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
-('5', '', 'AI oponent hard', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), '');
+insert into user_t (name, password, nick_name, join_date) values
+('', '', 'Ancillary message sender', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS')),
+('1', '', 'Guest', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS')),
+('2', '', 'Local player', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS')),
+('3', '', 'AI oponent easy', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS')),
+('4', '', 'AI oponent medium', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS')),
+('5', '', 'AI oponent hard', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'));
 
 create table contact_t
 (
 	name char(7) references user_t(name) not null,
-	contact_name char(7) references user_t(name) not null
+	contact_name char(7) references user_t(name) not null,
+	primary key (name, contact_name)
 );
 
 create table message_t
 (
+	id bigserial primary key,
 	sender char(7) references user_t(name) not null,
 	recipient char(7) references user_t(name) not null,
-	content text not null
+	content text not null,
+	sent timestamp not null,
+	recived timestamp default null,
+	read timestamp default null
 );
 
 create table ban_t
 (
 	issuer char(7) references user_t(name) not null,
-	recipient char(7) references user_t(name) not null
+	recipient char(7) references user_t(name) not null,
+	primary key (issuer, recipient)
 );
 
 create table group_chat_t
@@ -69,7 +78,8 @@ create table group_chat_t
 create table group_chat_invite_t
 (
 	group_chat_id bigint references group_chat_t(id) not null,
-	user_name char(7) references user_t(name) not null
+	recipient char(7) references user_t(name) not null,
+	valid boolean not null default true
 );
 
 create table group_chat_subscription_t
@@ -83,9 +93,9 @@ create table group_chat_subscription_t
 create table tournament_t
 (
 	id bigserial primary key,
-	api_worker_id integer not null, /* For match-making pourposes, the same api worker must handle any given tournament. */
-                                    /* So when an api worker recives a request relating to a tournament it's not the handler of, */
-                                    /* he will pass the request to the proper worker.*/
+	api_worker_id integer not null, /* For match-making pourposes, the same api worker must handle any given tournament */
+                                    /* So when an api worker recives a request relating to a tournament it's not the */
+                                    /* handler of, he will pass the request to the proper worker.*/
 	name varchar(30) not null,
 	group_chat_id bigint references group_chat_t(id) not null,
 	tournament_over boolean not null default false
@@ -94,7 +104,8 @@ create table tournament_t
 create table tournament_invite_t
 (
 	tournament_id bigint references tournament_t(id) not null,
-	user_name char(7) references user_t(name) not null
+	recipient char(7) references user_t(name) not null,
+	valid boolean not null default true
 );
 
 create table tournament_subscription_t
@@ -116,6 +127,13 @@ create table match_t
 	player2_score integer not null default 0,
 	match_began timestamp not null,
 	match_ended timestamp
+);
+
+create table match_invite_t
+(
+	match_id bigint references match_t(id) not null,
+	recipient char(7) references user_t(name) not null,
+	valid boolean not null default true
 );
 
 create type player_number as enum('1', '2');
