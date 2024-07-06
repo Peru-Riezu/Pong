@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/05 23:38:31                                             #
+#    Updated:  2024/07/06 00:33:58                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,16 +15,16 @@
 ################################################################################
 
 SHELL :=			bash
-CC :=				gcc
-CXX :=				g++
+CC :=				clang
+CXX :=				clang++
 CFLAGS :=			-O2 -flto -Wall -Wextra
 CXXFLAGS :=			-O2 -flto -Wall -Wextra
 DEBUG_FLAGS :=		-O0 -fsanitize=address,undefined,leak -g3
-LDFLAGS :=			-flto
+LDFLAGS :=			-flto -lpq
 
 ################################################################################
 
-NAME :=				name
+NAME :=				api
 
 DEP_PATH :=			./DEP
 DEP_PATH_MAKE :=	DEP/
@@ -69,7 +69,13 @@ CURRENT_DIR :=		$(shell pwd)
 MANPATH_APPEND :=	$(CURRENT_DIR)/manpages
 CURRENT_MANPAHT :=	$(shell man --path)
 
-ifneq ($(MAKECMDGOALS),$(NAME))
+ifeq ($(MAKECMDGOALS),$(NAME))
+-include $(DEP)
+endif
+ifeq ($(MAKECMDGOALS),all)
+-include $(DEP)
+endif
+ifeq ($(MAKECMDGOALS),)
 -include $(DEP)
 endif
 

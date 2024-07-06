@@ -1,35 +1,51 @@
-drop table oponent_actions_t;
-drop table match_t;
-drop table tournament_subscription_t;
-drop table tournament_t;
-drop table group_chat_subscription_t;
-drop table group_chat_t;
-drop table ban_t;
-drop table message_t;
-drop table user_t;
-drop type player_number;
-drop type action_code;
+drop table oponent_actions_t cascade;
+drop table match_t cascade;
+drop table tournament_subscription_t cascade;
+drop table tournament_invite_t cascade;
+drop table tournament_t cascade;
+drop table group_chat_subscription_t cascade;
+drop table group_chat_invite_t cascade;
+drop table group_chat_t cascade;
+drop table ban_t cascade;
+drop table message_t cascade;
+drop table contact_t cascade;
+drop table user_t cascade;
+drop type player_number cascade;
+drop type action_code cascade;
 
 create table user_t
 (
 	name char(7) primary key, /* stored hashed, locale must have char size of 1 byte */
 	password char(32) not null, /* stored hashed */
+	session_token char(32) default null,
+	session_token_expieres timestamp default null,
+	messages_pending boolean default false not null,
 	nick_name varchar(30) not null,
 	join_date timestamp not null,
-	email varchar(320) not null,
 	profile_picture bytea default null,
 	bio varchar(1024) default null,
-	messages_pending boolean default false not null,
-	email_verified boolean default false not null,
-	session_token char(256) default null,
-	session_token_expieres timestamp default null
+	is_online boolean not null default false,
+	normal_matches_won integer not null default 0,
+	normal_matches_lost integer not null default 0,
+	normal_matches_drawn integer not null default 0,
+	tournament_matches_won integer not null default 0,
+	tournament_matches_lost integer not null default 0,
+	tournament_matches_drawn integer not null default 0,
+	tournaments_won integer not null default 0
+	tournaments_played integer not null default 0
 );
 insert into user_t (name, password, nick_name, join_date, email) values
-('', '', 'ancillary message sender', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
 ('1', '', 'Guest', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
-('2', '', 'AI oponent easy', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
-('3', '', 'AI oponent medium', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
-('4', '', 'AI oponent hard', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), '');
+('2', '', 'Local player', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
+('3', '', 'AI oponent easy', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
+('4', '', 'AI oponent medium', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), ''),
+('5', '', 'AI oponent hard', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS'), '');
+
+create table contact_t
+(
+	name char(7) references user_t(name) not null,
+	contact_name char(7) references user_t(name) not null
+);
 
 create table message_t
 (
@@ -47,7 +63,13 @@ create table ban_t
 create table group_chat_t
 (
 	id bigserial primary key,
-	group_name_id varchar(30)
+	name varchar(30)
+);
+
+create table group_chat_invite_t
+(
+	group_chat_id bigint references group_chat_t(id) not null,
+	user_name char(7) references user_t(name) not null
 );
 
 create table group_chat_subscription_t
@@ -65,13 +87,21 @@ create table tournament_t
                                     /* So when an api worker recives a request relating to a tournament it's not the handler of, */
                                     /* he will pass the request to the proper worker.*/
 	name varchar(30) not null,
-	group_chat_id bigint references group_chat_t(id) not null
+	group_chat_id bigint references group_chat_t(id) not null,
+	tournament_over boolean not null default false
+);
+
+create table tournament_invite_t
+(
+	tournament_id bigint references tournament_t(id) not null,
+	user_name char(7) references user_t(name) not null
 );
 
 create table tournament_subscription_t
 (
 	tournament_id bigint references tournament_t(id),
 	group_chat_id bigint references group_chat_t(id),
+	can_use_chat boolean not null default true,
 	tournament_score integer not null default 0,
 	on_match boolean not null default false
 );
@@ -84,17 +114,25 @@ create table match_t
 	player2_name char(7) references user_t(name) not null,
 	player1_score integer not null default 0,
 	player2_score integer not null default 0,
-	game_began timestamp not null,
-	game_ended timestamp
+	match_began timestamp not null,
+	match_ended timestamp
 );
 
 create type player_number as enum('1', '2');
 create type action_code as enum('BALL_LAUCH_PROGRAMMED', 'DOWN_DOWN', 'DOWN_UP', 'UP_DOWN', 'UP_UP', 'VICTORY_CLAIMED');
-create table oponent_actions_t
+create table match_actions_t
 (
 	match_id bigint references match_t(id) not null,
 	actor_id player_number not null,
 	action action_code not null,
 	acknowledged timestamp not null default now(),
 	ball_launch_seed integer
+);
+
+create table set_t
+(
+	match_id bigint references match_t(id) not null,
+	set_number integer not null,
+	duraition interval not null,
+	winer player_number
 );

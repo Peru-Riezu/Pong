@@ -1,0 +1,68 @@
+request=set_session_token&name=(uri_encoded_7_character_token)&password=(uri_encoded_32_character_token)&session_token=(uri_encoded_32_character_token)
+
+request=set_nick_name&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&nick_name=(uri_encoded_0_to_30_character_token)
+
+request=set_profile_picture&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token) /* includes body */
+
+request=set_bio&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token) /* includes body */
+
+request=get_profile&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)
+
+request=get_group_subscriptions&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)
+
+request=get_tournament_subscriptions&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)
+
+request=get_contacts&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)
+
+request=get_match_history&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&from=(deciamal_encoded_number)&to=(deciamal_encoded_number)
+
+request=get_pending_messages&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)
+
+request=create_tournament&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&tournament_name=(uri_encoded_0_to_30_character_token)
+
+request=create_group_chat&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&group_chat_name=(uri_encoded_0_to_30_character_token)
+
+request=invite_to_group_chat&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token)
+
+request=invite_to_match&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token)
+
+request=invite_to_tournament&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token)
+
+request=leave_group_chat&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&group_chat_id=(deciamal_encoded_number)
+
+request=leave_tournament&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&tournament_id=(deciamal_encoded_number)
+
+request=send_direct_message&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token) /* includes body */
+
+request=ban&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token) /* includes body */
+
+request=unban&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token) /* includes body */
+
+request=add_contact&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token) /* includes body */
+
+request=remove_contact&name=(uri_encoded_7_character_token)&session_token=(uri_encoded_32_character_token)&recipient=(uri_encoded_7_character_token) /* includes body */
+
+
+
+set_session_token
+set_nick_name
+set_profile_picture
+set_bio
+get_profile
+get_group_subscriptions
+get_tournament_subscriptions
+get_contacts
+get_match_history
+get_pending_messages
+create_tournament
+create_group_chat
+invite_to_group_chat
+invite_to_match
+invite_to_tournament
+leave_group_chat
+leave_tournament
+send_direct_message
+ban
+unban
+add_contact
+remove_contact
