@@ -99,6 +99,7 @@ create table tournament_t
                                     /* handler of, he will pass the request to the proper worker.*/
 	name varchar(30) not null,
 	group_chat_id bigint references group_chat_t(id) not null,
+	tournament_started boolean not null default false,
 	tournament_over boolean not null default false
 );
 
@@ -115,7 +116,8 @@ create table tournament_subscription_t
 	group_chat_id bigint references group_chat_t(id),
 	can_use_chat boolean not null default true,
 	tournament_score integer not null default 0,
-	on_match boolean not null default false
+	on_match boolean not null default false,
+	left_tournament boolean not null default false
 );
 
 create table match_t
