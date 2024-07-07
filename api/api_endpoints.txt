@@ -1,0 +1,56 @@
+api endpoints:
+
+post set_session_token?name=()&password=()&force=()
+post set_nick_name?name=()&session_token=()
+post set_profile_picture?name=()&session_token=() /*includes body*/
+post set_bio?name=()&session_token=() /*includes body*/
+post set_password?name=()&old_password=()&new_password=()
+
+get get_profile?name=()&session_token=()&subject_name=()
+get get_group_subscriptions?name=()&session_token=()
+get get_tournament_subscriptions?name=()&session_token=()
+get get_contacts?name=()&session_token=()
+get get_match_history?name=()&session_token=()&subject_name=()&from=()&to=()
+get get_messages?name=()&session_token=()&sender_name=()&from=()&to=()
+get get_match_events?name=()&session_token=()&match_id=()
+get get_pending_messages?name=()&session_token=()
+get get_pending_match_events?name=()&session_token=()
+
+put create_tournament?name=()&session_token=()&tournament_name=()
+put create_group_chat?name=()&session_token=()&group_chat_name=()
+
+put invite_to_group_chat?name=()&session_token=()&group_chat_id=()&recipient_name=()
+put invite_to_tournament?name=()&session_token=()&tournament_id=()&recipient_name=()
+put invite_to_match?name=()&session_token=()&recipient_name=()
+
+post invalidate_invite_to_group_chat?name=()&session_token=()&group_chat_id=()&recipient_name=()
+post invalidate_invite_to_match?name=()&session_token=()&tournament_id=()&recipient_name=()
+post invalidate_invite_to_tournament?name=()&session_token=()&recipient_name=()
+
+post accept_invite_to_group_chat?name=()&session_token=()&group_chat_id=()
+post accept_invite_to_tournament?name=()&session_token=()&tournament_id=()
+post accept_invite_to_match?name=()&session_token=()&match_id=()
+
+post   leave_tournament?name=()&session_token=()&tournament_id=()
+delete leave_group_chat?name=()&session_token=()&group_chat_id=()
+
+post send_direct_message?name=()&session_token=()&recipient_name=() /* includes body */
+post send_group_message?name=()&session_token=()&group_chat_id=() /* includes body */
+post send_match_events?name=()&session_token=() /* includes body */
+
+post acknowledge_direct_message_recived?name=()&session_token=()&message_id=()
+post acknowledge_direct_message_read?name=()&session_token=()&message_id=()
+put  acknowledge_group_message_recived?name=()&session_token=()&message_id=()
+post acknowledge_group_message_read?name=()&session_token=()&message_id=()
+
+post promote_group_user?name=()&session_token=()&group_chat_id=()&recipient_name=()
+post demote_group_user?name=()&session_token=()&group_chat_id=()&recipient_name=()
+
+put    ban?name=()&session_token=()&recipient_name=()
+delete unban?name=()&session_token=()&recipient_name=()
+
+put    add_contact?name=()&session_token=()&subject_name=()
+delete remove_contact?name=()&session_token=()&subject_name=()
+
+put    create_account?name=()&password=()&nick_name=()
+delete delete_account?name=()&password=()

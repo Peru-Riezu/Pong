@@ -1,15 +1,17 @@
 drop table set_t cascade;
 drop table match_actions_t cascade;
-drop table match_invite_t;
+drop table match_invite_t cascade;
 drop table match_t cascade;
 drop table tournament_subscription_t cascade;
 drop table tournament_invite_t cascade;
 drop table tournament_t cascade;
 drop table group_chat_subscription_t cascade;
 drop table group_chat_invite_t cascade;
+drop table group_chat_message_acknowleged_t cascade;
+drop table group_chat_message_t cascade;
 drop table group_chat_t cascade;
 drop table ban_t cascade;
-drop table message_t cascade;
+drop table direct_message_t cascade;
 drop table contact_t cascade;
 drop table user_t cascade;
 drop type player_number cascade;
@@ -52,7 +54,7 @@ create table contact_t
 	primary key (name, contact_name)
 );
 
-create table message_t
+create table direct_message_t
 (
 	id bigserial primary key,
 	sender char(7) references user_t(name) not null,
@@ -75,6 +77,24 @@ create table group_chat_t
 	id bigserial primary key,
 	owner_name char(7) references user_t(name) not null,
 	name varchar(30)
+);
+
+create table group_chat_message_t
+(
+	id bigserial primary key,
+	sender char(7) references user_t(name) not null,
+	recipient bigint references group_chat_t(id) not null,
+	content text not null,
+	sent timestamp not null
+);
+
+create table group_chat_message_acknowleged_t
+(
+	message_id bigint references group_chat_message_t(id) not null,
+	recipient char(7) references user_t(name) not null,
+	recived timestamp default null,
+	read timestamp default null,
+	primary key (message_id, recipient)
 );
 
 create table group_chat_invite_t
