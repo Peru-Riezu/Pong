@@ -17,10 +17,14 @@ drop table user_t cascade;
 drop type player_number cascade;
 drop type action_code cascade;
 
+username:
+password: 
+
 create table user_t
 (
 	name char(7) primary key, /* stored hashed, locale must have char size of 1 byte */
 	password char(32) not null, /* stored hashed */
+	deleted_account boolean not null default false,
 	session_token char(32) default null,
 	session_token_expieres timestamp default null,
 	incoming_message_manager_id integer default null, /* id of api worker handeling the incoming messages */
