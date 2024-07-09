@@ -17,9 +17,6 @@ drop table user_t cascade;
 drop type player_number cascade;
 drop type action_code cascade;
 
-username:
-password: 
-
 create table user_t
 (
 	name char(7) primary key, /* stored hashed, locale must have char size of 1 byte */

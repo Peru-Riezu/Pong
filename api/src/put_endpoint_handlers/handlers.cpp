@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 13:40:52                                            */
-/*   Updated:  2024/07/09 06:17:21                                            */
+/*   Updated:  2024/07/09 08:18:31                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,6 @@ void ban_handler(char *buffer, char const *query_beginning, PGconn *const dbconn
 void add_contact_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "add_contact_handler called \n";
-}
-
-void create_account_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
-{
-	std::cout << "create_account_handler called \n";
 }
 
 void invite_to_group_chat_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)

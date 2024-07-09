@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/05 23:42:45                                             #
+#    Updated:  2024/07/09 08:11:30                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ SHELL :=			bash
 .DEFAULT_GOAL := all
 
 all:
-	psql db -f ./db/create_tables.sql
+	psql pongdb -f ./db/create_tables.sql
 
 clean:
 
