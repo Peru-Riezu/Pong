@@ -6,14 +6,14 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 18:01:18                                            */
-/*   Updated:  2024/07/08 18:12:53                                            */
+/*   Updated:  2024/07/09 06:10:44                                            */
 /*                                                                            */
 /* ************************************************************************** */
 #include "c_token.hpp"
 #include <algorithm>
+#include <compare>
 #include <cstddef>
 #include <cstring>
-
 
 ;
 #pragma GCC diagnostic push
@@ -31,20 +31,18 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-c_token::c_token(char const *beginning_exemplum, char const *end_exemplum) : beginning(beginning_exemplum), end(end_exemplum),
-	size(static_cast<size_t>((end - beginning_exemplum) + 1))
+c_token::c_token(char const *beginning_exemplum, char const *end_exemplum)
+	: beginning(beginning_exemplum), end(end_exemplum), size(static_cast<size_t>((end - beginning_exemplum) + 1))
 {
-
 }
 
 c_token::c_token(c_token const &exemplum) : beginning(exemplum.beginning), end(exemplum.end), size(exemplum.size)
 {
-
 }
 
-c_token::c_token(char const *exemplum) : beginning(exemplum), end(exemplum + strlen(exemplum) - 1), size(strlen(exemplum))
+c_token::c_token(char const *exemplum)
+	: beginning(exemplum), end(exemplum + strlen(exemplum) - 1), size(strlen(exemplum))
 {
-
 }
 
 c_token const &c_token::operator=(c_token const &exemplum)
@@ -58,15 +56,23 @@ c_token const &c_token::operator=(c_token const &exemplum)
 	return (*this);
 }
 
-bool c_token::operator<(c_token const &exemplum) const
+std::strong_ordering c_token::operator<=>(c_token const &exemplum) const
 {
 	int const cmp_res = strncmp(beginning, exemplum.get_beginning(), std::min(size, exemplum.size));
 
-	if (cmp_res < 0)
+	if (cmp_res == 0)
 	{
-		return (true);
+		if (size == exemplum.size)
+		{
+			return (std::strong_ordering::equal);
+		}
+		if (size > exemplum.size)
+		{
+			return (std::strong_ordering::greater);
+		}
+		return (std::strong_ordering::less);
 	}
-	return (false);
+	return (cmp_res <=> 0);
 }
 
 char const *c_token::get_beginning(void) const
@@ -79,7 +85,7 @@ char const *c_token::get_end(void) const
 	return (end);
 }
 
-size_t      c_token::get_size(void) const
+size_t c_token::get_size(void) const
 {
 	return (size);
 }

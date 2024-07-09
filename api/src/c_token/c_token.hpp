@@ -6,12 +6,13 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 17:46:45                                            */
-/*   Updated:  2024/07/08 18:12:46                                            */
+/*   Updated:  2024/07/09 06:09:09                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <compare>
 #include <cstddef>
 ;
 #pragma GCC diagnostic push
@@ -41,12 +42,12 @@ class c_token
 		c_token(c_token const &exemplum);
 		explicit c_token(char const *exemplum);
 
-		c_token const &operator=(c_token const &exemplum);
-		bool operator<(c_token const &exemplum) const;
+		c_token const       &operator=(c_token const &exemplum);
+		std::strong_ordering operator<=>(c_token const &exemplum) const;
 
-		char const *get_beginning(void) const;
-		char const *get_end(void) const;
-		size_t      get_size(void) const;
+		char const          *get_beginning(void) const;
+		char const          *get_end(void) const;
+		size_t               get_size(void) const;
 };
 
 #pragma GCC diagnostic pop

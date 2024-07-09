@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 13:42:14                                            */
-/*   Updated:  2024/07/08 17:42:23                                            */
+/*   Updated:  2024/07/09 06:17:00                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,22 +29,22 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-void delete_account_handler(char *buffer)
+void delete_account_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "delete_account_handler called \n";
 }
 
-void remove_contact_handler(char *buffer)
+void remove_contact_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "remove_contact_handler called \n";
 }
 
-void unban_handler(char *buffer)
+void unban_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "unban_handler called \n";
 }
 
-void leave_group_chat_handler(char *buffer)
+void leave_group_chat_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "leave_group_chat_handler called \n";
 }

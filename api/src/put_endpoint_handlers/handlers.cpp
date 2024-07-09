@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 13:40:52                                            */
-/*   Updated:  2024/07/08 17:42:55                                            */
+/*   Updated:  2024/07/09 06:17:21                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,47 +29,47 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-void create_tournament_handler(char *buffer)
+void create_tournament_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "create_tournament_handler called \n";
 }
 
-void create_group_chat_handler(char *buffer)
+void create_group_chat_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "create_group_chat_handler called \n";
 }
 
-void acknowledge_group_message_recived_handler(char *buffer)
+void acknowledge_group_message_recived_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "acknowledge_group_message_recived_handler called \n";
 }
 
-void ban_handler(char *buffer)
+void ban_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "ban_handler called \n";
 }
 
-void add_contact_handler(char *buffer)
+void add_contact_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "add_contact_handler called \n";
 }
 
-void create_account_handler(char *buffer)
+void create_account_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "create_account_handler called \n";
 }
 
-void invite_to_group_chat_handler(char *buffer)
+void invite_to_group_chat_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "invite_to_group_chat_handler called \n";
 }
 
-void invite_to_tournament_handler(char *buffer)
+void invite_to_tournament_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "invite_to_tournament_handler called \n";
 }
 
-void invite_to_match_handler(char *buffer)
+void invite_to_match_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "invite_to_match_handler called \n";
 }

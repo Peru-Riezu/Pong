@@ -6,11 +6,13 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/08 17:44:31                                            */
+/*   Updated:  2024/07/09 06:15:30                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include "/usr/include/postgresql/libpq-fe.h"
 
 ;
 #pragma GCC diagnostic push
@@ -28,53 +30,53 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-typedef void (*t_handler_function)(char *);
+typedef void (*t_handler_function)(char *, char const *, PGconn *const);
 
-void                   set_session_token_handler(char *buffer);
-void                   set_nick_name_handler(char *buffer);
-void                   set_profile_picture_handler(char *buffer);
-void                   set_bio_handler(char *buffer);
-void                   set_password_handler(char *buffer);
-void                   invalidate_invite_to_group_chat_handler(char *buffer);
-void                   invalidate_invite_to_match_handler(char *buffer);
-void                   invalidate_invite_to_tournament_handler(char *buffer);
-void                   accept_invite_to_group_chat_handler(char *buffer);
-void                   accept_invite_to_tournament_handler(char *buffer);
-void                   accept_invite_to_match_handler(char *buffer);
-void                   leave_tournament_handler(char *buffer);
-void                   send_direct_message_handler(char *buffer);
-void                   send_group_message_handler(char *buffer);
-void                   send_match_events_handler(char *buffer);
-void                   acknowledge_direct_message_recived_handler(char *buffer);
-void                   acknowledge_direct_message_read_handler(char *buffer);
-void                   acknowledge_group_message_read_handler(char *buffer);
-void                   promote_group_user_handler(char *buffer);
-void                   demote_group_user_handler(char *buffer);
+void set_session_token_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void set_nick_name_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void set_profile_picture_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void set_bio_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void set_password_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void invalidate_invite_to_group_chat_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void invalidate_invite_to_match_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void invalidate_invite_to_tournament_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void accept_invite_to_group_chat_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void accept_invite_to_tournament_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void accept_invite_to_match_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void leave_tournament_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void send_direct_message_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void send_group_message_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void send_match_events_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void acknowledge_direct_message_recived_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void acknowledge_direct_message_read_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void acknowledge_group_message_read_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void promote_group_user_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void demote_group_user_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
 
-void                   get_profile_handler(char *buffer);
-void                   get_group_subscriptions_handler(char *buffer);
-void                   get_tournament_subscriptions_handler(char *buffer);
-void                   get_contacts_handler(char *buffer);
-void                   get_match_history_handler(char *buffer);
-void                   get_messages_handler(char *buffer);
-void                   get_group_messages_handler(char *buffer);
-void                   get_match_events_handler(char *buffer);
-void                   get_pending_messages_handler(char *buffer);
-void                   get_pending_match_events_handler(char *buffer);
+void get_profile_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_group_subscriptions_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_tournament_subscriptions_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_contacts_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_match_history_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_messages_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_group_messages_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_match_events_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_pending_messages_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void get_pending_match_events_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
 
-void                   create_tournament_handler(char *buffer);
-void                   create_group_chat_handler(char *buffer);
-void                   acknowledge_group_message_recived_handler(char *buffer);
-void                   ban_handler(char *buffer);
-void                   add_contact_handler(char *buffer);
-void                   create_account_handler(char *buffer);
-void                   invite_to_group_chat_handler(char *buffer);
-void                   invite_to_tournament_handler(char *buffer);
-void                   invite_to_match_handler(char *buffer);
+void create_tournament_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void create_group_chat_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void acknowledge_group_message_recived_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void ban_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void add_contact_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void create_account_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void invite_to_group_chat_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void invite_to_tournament_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void invite_to_match_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
 
-void                   delete_account_handler(char *buffer);
-void                   remove_contact_handler(char *buffer);
-void                   unban_handler(char *buffer);
-void                   leave_group_chat_handler(char *buffer);
+void delete_account_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void remove_contact_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void unban_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
+void leave_group_chat_handler(char *buffer, char const *query_beginning, PGconn *dbconnection);
 
 #pragma GCC diagnostic pop

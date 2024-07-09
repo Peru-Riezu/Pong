@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 13:39:29                                            */
-/*   Updated:  2024/07/08 17:42:37                                            */
+/*   Updated:  2024/07/09 06:16:46                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,52 +29,52 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-void get_profile_handler(char *buffer)
+void get_profile_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_profile_handler called \n";
 }
 
-void get_group_subscriptions_handler(char *buffer)
+void get_group_subscriptions_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_group_subscriptions_handler called \n";
 }
 
-void get_tournament_subscriptions_handler(char *buffer)
+void get_tournament_subscriptions_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_tournament_subscriptions_handler called \n";
 }
 
-void get_contacts_handler(char *buffer)
+void get_contacts_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_contacts_handler called \n";
 }
 
-void get_match_history_handler(char *buffer)
+void get_match_history_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_match_history_handler called \n";
 }
 
-void get_messages_handler(char *buffer)
+void get_messages_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_messages_handler called \n";
 }
 
-void get_group_messages_handler(char *buffer)
+void get_group_messages_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_group_messages_handler called \n";
 }
 
-void get_match_events_handler(char *buffer)
+void get_match_events_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_match_events_handler called \n";
 }
 
-void get_pending_messages_handler(char *buffer)
+void get_pending_messages_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_pending_messages_handler called \n";
 }
 
-void get_pending_match_events_handler(char *buffer)
+void get_pending_match_events_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
 	std::cout << "get_pending_match_events_handler called \n";
 }
