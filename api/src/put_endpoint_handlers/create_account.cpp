@@ -6,11 +6,12 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/09 08:17:58                                            */
-/*   Updated:  2024/07/09 14:35:43                                            */
+/*   Updated:  2024/07/09 18:23:13                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../api.hpp"
+#include "../c_prepare_pg_statement/c_prepare_pg_statement.hpp"
 #include <cctype>
 #include <cstddef>
 #include <iostream>
@@ -33,6 +34,8 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 #pragma GCC diagnostic ignored "-Wc99-extensions"
 #pragma GCC diagnostic ignored "-Wc++98-compat-bind-to-temporary-copy"
+#pragma GCC diagnostic ignored "-Wglobal-constructors"
+#pragma GCC diagnostic ignored "-Wexit-time-destructors"
 ;
 
 c_mutable_token get_base58_token(char *buffer)
@@ -143,27 +146,29 @@ static bool get_params_if_able(c_mutable_token &name, c_mutable_token &password,
 	return (true);
 }
 
+static c_prepare_pg_statement statement("create user",
+										"insert into user_t (name, password, nick_name)"
+										"values ($1::char(7), $2::char(43), $3::varchar(30));",
+										3);
+
 void create_account_handler(char *buffer, char const *query_beginning, PGconn *const dbconnection)
 {
+	int             status;
 	PGresult       *res;
 	c_mutable_token name;
 	c_mutable_token password;
 	c_mutable_token nick_name;
 
-	// prepare statement
 	buffer += query_beginning - buffer;
 	if (get_params_if_able(name, password, nick_name, buffer) == false)
 	{
 		std::cerr << "api: error: invalid format for query parameters\n";
 		return;
 	}
-	res = PQexecParams(dbconnection,
-					   "insert into user_t (name, password, nick_name)"
-					   "values ($1::char(7), $2::char(43), $3::varchar(30));",
-					   3, nullptr,
-					   (char const *[]){name.get_beginning(), password.get_beginning(), nick_name.get_beginning()},
-					   nullptr, nullptr, RESULTS_IN_TEXT);
-	int status = PQresultStatus(res);
+	res = PQexecPrepared(dbconnection, "create user", 3,
+						 (char const *[]){name.get_beginning(), password.get_beginning(), nick_name.get_beginning()},
+						 nullptr, nullptr, RESULTS_IN_TEXT);
+	status = PQresultStatus(res);
 	if (status != PGRES_COMMAND_OK)
 	{
 		if (status == PGRES_BAD_RESPONSE)

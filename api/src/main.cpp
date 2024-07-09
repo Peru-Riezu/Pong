@@ -6,17 +6,19 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/09 10:54:23                                            */
+/*   Updated:  2024/07/09 18:25:19                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "api.hpp"
+#include "c_prepare_pg_statement/c_prepare_pg_statement.hpp"
 #include <cctype>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <map>
+#include <postgresql/libpq-fe.h>
 #include <stdexcept>
 #include <unistd.h>
 #include <utility>
@@ -141,7 +143,9 @@ static void handle_request(char *buffer, PGconn *const dbconnection)
 int main(void)
 {
 	static char   buffer[4096];
+	int           status;
 	ssize_t       read_ret;
+	PGresult     *res;
 	PGconn *const dbconnection =
 		PQconnectdbParams((char *[]){"dbname", nullptr}, (char *[]){"pongdb", nullptr}, NO_EXPAND_DBNAME);
 
@@ -153,6 +157,21 @@ int main(void)
 	{
 		std::cerr << "Api could not connect to the database: " << PQerrorMessage(dbconnection);
 	}
+	res = c_prepare_pg_statement::get_result_of_statement_preparaitions(dbconnection);
+	status = PQresultStatus(res);
+	if (status != PGRES_COMMAND_OK)
+	{
+		if (status == PGRES_BAD_RESPONSE)
+		{
+			std::cerr << "api: error: internal database error\n";
+		}
+		else
+		{
+			std::cerr << "api: error: prepare statement failed: " << PQresultErrorMessage(res);
+		}
+		return (EXIT_FAILURE);
+	}
+	PQclear(res);
 	read_ret = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
 	buffer[read_ret] = '\0';
 	if (read_ret == -1)
@@ -172,6 +191,7 @@ int main(void)
 	{
 		std::cerr << "api: internal error\n";
 	}
+	PQfinish(dbconnection);
 	return (EXIT_SUCCESS);
 }
 
