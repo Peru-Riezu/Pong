@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 17:46:45                                            */
-/*   Updated:  2024/07/09 06:09:09                                            */
+/*   Updated:  2024/07/09 13:00:41                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,42 @@ class c_token
 		c_token(char const *beginning_exemplum, char const *end_exemplum);
 		c_token(c_token const &exemplum);
 		explicit c_token(char const *exemplum);
+		c_token(void);
 
 		c_token const       &operator=(c_token const &exemplum);
 		std::strong_ordering operator<=>(c_token const &exemplum) const;
 
+		bool                 is_valid(void) const;
+
 		char const          *get_beginning(void) const;
 		char const          *get_end(void) const;
 		size_t               get_size(void) const;
+};
+
+class c_mutable_token
+{
+	private:
+		char  *beginning;
+		char  *end;
+		size_t size;
+
+	public:
+		c_mutable_token(char *beginning_exemplum, char *end_exemplum);
+		c_mutable_token(c_mutable_token &exemplum);
+		explicit c_mutable_token(char *exemplum);
+		c_mutable_token(void);
+
+		c_mutable_token const &operator=(c_mutable_token const &exemplum);
+		std::strong_ordering   operator<=>(c_mutable_token const &exemplum) const;
+		char                  &operator[](size_t i) const;
+
+		bool                   is_valid(void) const;
+
+		char                  *get_beginning(void) const;
+		char                  *get_end(void) const;
+		size_t                 get_size(void) const;
+
+		void                   shrink_by(size_t value);
 };
 
 #pragma GCC diagnostic pop

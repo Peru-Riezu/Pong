@@ -6,13 +6,14 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/09 06:15:30                                            */
+/*   Updated:  2024/07/09 13:14:14                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "/usr/include/postgresql/libpq-fe.h"
+#include "c_token/c_token.hpp"
 
 ;
 #pragma GCC diagnostic push
@@ -29,6 +30,14 @@
 #pragma GCC diagnostic ignored "-Wc++20-designator"
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
+
+#define NO_EXPAND_DBNAME  0
+#define RESULTS_IN_TEXT   0
+#define RESULTS_IN_BINARY 1
+
+c_mutable_token get_base58_token(char *buffer);
+c_mutable_token get_token(char *buffer);
+c_mutable_token decode_token(c_mutable_token token);
 
 typedef void (*t_handler_function)(char *, char const *, PGconn *const);
 

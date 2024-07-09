@@ -1,20 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                                            */
-/*   Filename: c_token.cpp                                                    */
+/*   Filename: c_mutable_token.cpp                                            */
 /*   Author:   Peru Riezu <riezumunozperu@gmail.com>                          */
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
-/*   Created:  2024/07/08 18:01:18                                            */
-/*   Updated:  2024/07/09 12:58:06                                            */
+/*   Created:  2024/07/09 12:56:34                                            */
+/*   Updated:  2024/07/09 13:03:35                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "c_token.hpp"
 #include <algorithm>
-#include <compare>
-#include <cstddef>
-#include <cstring>
+#include <stdexcept>
+#include <string.h>
 
 ;
 #pragma GCC diagnostic push
@@ -32,25 +31,26 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-c_token::c_token(char const *beginning_exemplum, char const *end_exemplum)
+c_mutable_token::c_mutable_token(char *beginning_exemplum, char *end_exemplum)
 	: beginning(beginning_exemplum), end(end_exemplum), size(static_cast<size_t>((end - beginning_exemplum) + 1))
 {
 }
 
-c_token::c_token(c_token const &exemplum) : beginning(exemplum.beginning), end(exemplum.end), size(exemplum.size)
+c_mutable_token::c_mutable_token(c_mutable_token &exemplum)
+	: beginning(exemplum.beginning), end(exemplum.end), size(exemplum.size)
 {
 }
 
-c_token::c_token(char const *exemplum)
+c_mutable_token::c_mutable_token(char *exemplum)
 	: beginning(exemplum), end(exemplum + strlen(exemplum) - 1), size(strlen(exemplum))
 {
 }
 
-c_token::c_token(void) : beginning(nullptr), end(nullptr), size(0)
+c_mutable_token::c_mutable_token(void) : beginning(nullptr), end(nullptr), size(0)
 {
 }
 
-c_token const &c_token::operator=(c_token const &exemplum)
+c_mutable_token const &c_mutable_token::operator=(c_mutable_token const &exemplum)
 {
 	if (this != &exemplum)
 	{
@@ -61,7 +61,7 @@ c_token const &c_token::operator=(c_token const &exemplum)
 	return (*this);
 }
 
-std::strong_ordering c_token::operator<=>(c_token const &exemplum) const
+std::strong_ordering c_mutable_token::operator<=>(c_mutable_token const &exemplum) const
 {
 	int const cmp_res = strncmp(beginning, exemplum.get_beginning(), std::min(size, exemplum.size));
 
@@ -80,24 +80,39 @@ std::strong_ordering c_token::operator<=>(c_token const &exemplum) const
 	return (cmp_res <=> 0);
 }
 
-bool c_token::is_valid(void) const
+char &c_mutable_token::operator[](size_t i) const
+{
+	return (beginning[i]);
+}
+
+bool c_mutable_token::is_valid(void) const
 {
 	return (size != 0);
 }
 
-char const *c_token::get_beginning(void) const
+char *c_mutable_token::get_beginning(void) const
 {
 	return (beginning);
 }
 
-char const *c_token::get_end(void) const
+char *c_mutable_token::get_end(void) const
 {
 	return (end);
 }
 
-size_t c_token::get_size(void) const
+size_t c_mutable_token::get_size(void) const
 {
 	return (size);
+}
+
+void c_mutable_token::shrink_by(size_t value)
+{
+	if (value >= size)
+	{
+		throw(std::invalid_argument("attempt to shrink token by a value greater or equal than its size"));
+	}
+	size -= value;
+	end -= value;
 }
 
 #pragma GCC diagnostic pop

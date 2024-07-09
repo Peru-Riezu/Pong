@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/09 06:18:04                                             #
+#    Updated:  2024/07/09 14:18:16                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -109,7 +109,7 @@ $(DEP_PATH)/%.d: %.c | $(NEW_DIRS)
 $(NAME): $(OBJ)
 	$(CXX) $(OBJ) -o $@ $(LDFLAGS)
 
-.PHONY: all clean fclean re push update_manpath tags debug format
+.PHONY: all clean fclean re push update_manpath tags debug format test
 
 all:
 	@make --no-print-directory $(NAME)
@@ -117,6 +117,7 @@ all:
 clean:
 	@rm $(DEP) $(OBJ) debug &> /dev/null || true
 	@rmdir -p $(NEW_DIRS) $(DEP_PATH) $(OBJ_PATH) &> /dev/null || true
+	@rm -rf test_files
 
 fclean: clean
 	@rm $(NAME) &> /dev/null || true
@@ -147,3 +148,6 @@ debug:
 
 format:
 	clang-format -i $(CSRC) $(CHDR) $(CPPSRC) $(CPPHDR)
+
+test:
+	@bash test.bash

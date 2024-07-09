@@ -6,12 +6,11 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/09 06:30:52                                            */
+/*   Updated:  2024/07/09 10:54:23                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "api.hpp"
-#include "c_token/c_token.hpp"
 #include <cctype>
 #include <cstddef>
 #include <cstdio>
@@ -21,10 +20,6 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <utility>
-
-#define NO_EXPAND_DBNAME  0
-#define RESULTS_IN_TEXT   0
-#define RESULTS_IN_BINARY 1
 
 ;
 #pragma GCC diagnostic push
@@ -60,6 +55,10 @@ static c_token get_method_token(char const *buffer)
 	{
 		i++;
 	}
+	if (i == 0)
+	{
+		return (c_token(beginning, beginning));
+	}
 	return (c_token(beginning, &buffer[i - 1]));
 }
 
@@ -78,6 +77,10 @@ static c_token get_endpoint_token(char const *buffer)
 	while (islower(buffer[i]) != 0 || buffer[i] == '_')
 	{
 		i++;
+	}
+	if (i == 0)
+	{
+		return (c_token(beginning, beginning));
 	}
 	return (c_token(beginning, &buffer[i - 1]));
 }
@@ -140,7 +143,7 @@ int main(void)
 	static char   buffer[4096];
 	ssize_t       read_ret;
 	PGconn *const dbconnection =
-		PQconnectdbParams((char *[]){"dbname", nullptr}, (char *[]){"db", nullptr}, NO_EXPAND_DBNAME);
+		PQconnectdbParams((char *[]){"dbname", nullptr}, (char *[]){"pongdb", nullptr}, NO_EXPAND_DBNAME);
 
 	if (dbconnection == nullptr)
 	{
@@ -171,15 +174,5 @@ int main(void)
 	}
 	return (EXIT_SUCCESS);
 }
-
-//	res = PQexecParams(dbconnection, "update user_t set session_token = $1::char(32) where name = $2::char(7);", 2,
-//				   nullptr, (char *[]){"42", ""}, nullptr, nullptr, RESULTS_IN_TEXT);
-//	res = PQexecParams(dbconnection, "select * from user_t;", 0, nullptr, nullptr, nullptr, nullptr, RESULTS_IN_TEXT);
-//	if (PQresultStatus(res) != PGRES_TUPLES_OK)
-//	{
-//		std::cerr << "Database command failed: " << PQresultErrorMessage(res);
-//	}
-//	result_to_terminal(res);
-//	PQclear(res);
 
 #pragma GCC diagnostic pop

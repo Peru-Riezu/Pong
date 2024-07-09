@@ -28,7 +28,7 @@ create table user_t
 	match_event_manager_id integer default null, /* id of api worker handeling the incoming match events */
 	messages_pending boolean default false not null,
 	nick_name varchar(30) not null,
-	join_date timestamp not null,
+	join_date timestamp default now() not null,
 	profile_picture bytea default null,
 	bio varchar(1024) default null,
 	normal_matches_won integer not null default 0,
