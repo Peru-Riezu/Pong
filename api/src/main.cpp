@@ -6,12 +6,13 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/09 18:25:19                                            */
+/*   Updated:  2024/07/10 14:54:32                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "api.hpp"
 #include "c_prepare_pg_statement/c_prepare_pg_statement.hpp"
+#include <asm-generic/socket.h>
 #include <cctype>
 #include <cstddef>
 #include <cstdio>
@@ -19,9 +20,10 @@
 #include <iostream>
 #include <map>
 #include <postgresql/libpq-fe.h>
-#include <stdexcept>
 #include <unistd.h>
 #include <utility>
+#include <sys/socket.h>
+
 
 ;
 #pragma GCC diagnostic push
@@ -140,11 +142,9 @@ static void handle_request(char *buffer, PGconn *const dbconnection)
 	endpoint_to_handler.at(std::pair<c_token, c_token>(method, endpoint))(buffer, endpoint.get_end() + 1, dbconnection);
 }
 
-int main(void)
+static PGconn *connect_to_database(void)
 {
-	static char   buffer[4096];
 	int           status;
-	ssize_t       read_ret;
 	PGresult     *res;
 	PGconn *const dbconnection =
 		PQconnectdbParams((char *[]){"dbname", nullptr}, (char *[]){"pongdb", nullptr}, NO_EXPAND_DBNAME);
@@ -152,12 +152,16 @@ int main(void)
 	if (dbconnection == nullptr)
 	{
 		std::cerr << "Api could not connect to the database: not enough memory left on device\n";
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	if (PQstatus(dbconnection) != CONNECTION_OK)
 	{
 		std::cerr << "Api could not connect to the database: " << PQerrorMessage(dbconnection);
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	res = c_prepare_pg_statement::get_result_of_statement_preparaitions(dbconnection);
+	res = c_prepare_pg_statement::get_result_of_statement_preparaitions(
+		dbconnection); // a little bit hacky but
+					   // this allows us to prepare statements through global constructors
 	status = PQresultStatus(res);
 	if (status != PGRES_COMMAND_OK)
 	{
@@ -169,28 +173,34 @@ int main(void)
 		{
 			std::cerr << "api: error: prepare statement failed: " << PQresultErrorMessage(res);
 		}
-		return (EXIT_FAILURE);
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	PQclear(res);
-	read_ret = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
-	buffer[read_ret] = '\0';
-	if (read_ret == -1)
+	if (PQsetnonblocking(dbconnection, 1) == -1) // set connection to nonblocking mode
 	{
-		perror("api: fatal error when reading from stdin: ");
-		return (EXIT_FAILURE);
+		std::cerr << "api: error: failed to set database connection to nonblocking mode\n";
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	try
+	return (dbconnection);
+}
+static int increase_connection_buffers_and_get_fd(PGconn *dbconnection)
+{
+	int const connection_fd = PQsocket(dbconnection);
+
+	if (setsockopt(connection_fd, SOL_SOCKET, SO_SNDBUF, (int []){16777216}, sizeof(int)) == -1
+			|| setsockopt(connection_fd, SOL_SOCKET, SO_RCVBUF, (int []){16777216}, sizeof(int)) == -1)
 	{
-		handle_request(buffer, dbconnection);
+		std::cerr << "api: error: failed to increase database connection buffer sizes\n";
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	catch (std::out_of_range &)
-	{
-		std::cerr << "api: request to invalid endpoint\n";
-	}
-	catch (...)
-	{
-		std::cerr << "api: internal error\n";
-	}
+	return (connection_fd);
+}
+
+int main(void)
+{
+	PGconn *const dbconnection = connect_to_database(); // may exit program
+	int const     connection_fd = increase_connection_buffers_and_get_fd(dbconnection); // may exit program
+
 	PQfinish(dbconnection);
 	return (EXIT_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/09 08:17:58                                            */
-/*   Updated:  2024/07/09 18:23:13                                            */
+/*   Updated:  2024/07/10 13:05:12                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,13 +91,17 @@ c_mutable_token decode_token(c_mutable_token token) // NOLINT(performance-unnece
 	i = 0;
 	while (i < token.get_size())
 	{
-		if (token.get_beginning()[i] == '%')
+		if (token[i] == '%')
 		{
 			if ((token.get_size() - i) < 3 || isalnum(token[i + 1]) == 0 || isalnum(token[i + 2]) == 0)
 			{
 				return (c_mutable_token());
 			}
 			token[i] = static_cast<char>(decode_hex_digit(token[i + 1]) * 16 + decode_hex_digit(token[i + 2]));
+			if (token.get_size() > i + 3)
+			{
+				memmove(&token[i + 1], &token[i + 3], token.get_size() - i - 3);
+			}
 			token.shrink_by(2);
 		}
 		i++;
