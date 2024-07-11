@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/10 14:54:32                                            */
+/*   Updated:  2024/07/11 19:15:08                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <liburing.h>
 #include <map>
 #include <postgresql/libpq-fe.h>
 #include <unistd.h>
 #include <utility>
 #include <sys/socket.h>
-
 
 ;
 #pragma GCC diagnostic push
@@ -42,6 +42,7 @@
 #pragma GCC diagnostic ignored "-Wc99-extensions"
 #pragma GCC diagnostic ignored "-Wexit-time-destructors"
 #pragma GCC diagnostic ignored "-Wreserved-identifier"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 ;
 
 static c_token get_method_token(char const *buffer)
@@ -183,12 +184,13 @@ static PGconn *connect_to_database(void)
 	}
 	return (dbconnection);
 }
+
 static int increase_connection_buffers_and_get_fd(PGconn *dbconnection)
 {
 	int const connection_fd = PQsocket(dbconnection);
 
-	if (setsockopt(connection_fd, SOL_SOCKET, SO_SNDBUF, (int []){16777216}, sizeof(int)) == -1
-			|| setsockopt(connection_fd, SOL_SOCKET, SO_RCVBUF, (int []){16777216}, sizeof(int)) == -1)
+	if (setsockopt(connection_fd, SOL_SOCKET, SO_SNDBUF, (int []){67108864}, sizeof(int)) == -1
+			|| setsockopt(connection_fd, SOL_SOCKET, SO_RCVBUF, (int []){67108864}, sizeof(int)) == -1)
 	{
 		std::cerr << "api: error: failed to increase database connection buffer sizes\n";
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
@@ -196,10 +198,38 @@ static int increase_connection_buffers_and_get_fd(PGconn *dbconnection)
 	return (connection_fd);
 }
 
+static struct io_uring set_up_ring(void)
+{
+	struct io_uring_params params =
+	{
+		.sq_entries = SQ_SIZE,
+		.cq_entries = CQ_SIZE,
+		.flags = IORING_SETUP_CQSIZE | IORING_SETUP_SUBMIT_ALL | IORING_SETUP_COOP_TASKRUN | IORING_SETUP_SINGLE_ISSUER,
+	};
+	struct io_uring ring;
+	int res;
+
+	res = io_uring_queue_init_params(SQ_SIZE, &ring, &params);
+	if (res < 0)
+	{
+		perror("api: error: failed to increase database connection buffer sizes");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	res = io_uring_register_ring_fd(&ring);
+	if (res < 0)
+	{
+		perror("api: error: failed to increase database connection buffer sizes");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+
+	return (ring);
+}
+
 int main(void)
 {
-	PGconn *const dbconnection = connect_to_database(); // may exit program
-	int const     connection_fd = increase_connection_buffers_and_get_fd(dbconnection); // may exit program
+	PGconn *const   dbconnection = connect_to_database(); // may exit program
+	int const       connection_fd = increase_connection_buffers_and_get_fd(dbconnection); // may exit program
+	struct io_uring ring = set_up_ring(); // may exit program
 
 	PQfinish(dbconnection);
 	return (EXIT_SUCCESS);

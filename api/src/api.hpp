@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/09 13:14:14                                            */
+/*   Updated:  2024/07/11 15:39:03                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@
 #define NO_EXPAND_DBNAME  0
 #define RESULTS_IN_TEXT   0
 #define RESULTS_IN_BINARY 1
+#define SQ_SIZE 256
+#define CQ_SIZE 65536
 
 c_mutable_token get_base58_token(char *buffer);
 c_mutable_token get_token(char *buffer);
