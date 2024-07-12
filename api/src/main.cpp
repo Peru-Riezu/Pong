@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/11 19:15:08                                            */
+/*   Updated:  2024/07/12 10:01:11                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 #include "c_prepare_pg_statement/c_prepare_pg_statement.hpp"
 #include <asm-generic/socket.h>
 #include <cctype>
+#include <cerrno>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <fcntl.h>
 #include <iostream>
 #include <liburing.h>
 #include <map>
@@ -207,21 +209,52 @@ static struct io_uring set_up_ring(void)
 		.flags = IORING_SETUP_CQSIZE | IORING_SETUP_SUBMIT_ALL | IORING_SETUP_COOP_TASKRUN | IORING_SETUP_SINGLE_ISSUER,
 	};
 	struct io_uring ring;
+	struct io_uring_sqe *sqe;
 	int res;
+	int const fd = open("/dev/stdout", O_RDWR);
 
+	if (fd == -1)
+	{
+		perror("api: error: failed to open stdout");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
 	res = io_uring_queue_init_params(SQ_SIZE, &ring, &params);
 	if (res < 0)
 	{
-		perror("api: error: failed to increase database connection buffer sizes");
+		errno = -res;
+		perror("api: error: failed to create io uring");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	res = io_uring_register_ring_fd(&ring);
 	if (res < 0)
 	{
-		perror("api: error: failed to increase database connection buffer sizes");
+		errno = -res;
+		perror("api: error: failed to register io uring fd");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-
+	res = io_uring_register_files(&ring, (int [1]){fd}, 1);
+	if (res < 0)
+	{
+		errno = -res;
+		perror("api: error: failed to register stdout fd");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	sqe = io_uring_get_sqe(&ring);
+	if (sqe == nullptr)
+	{
+		std::cerr << "api: error: sq full\n";
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	sqe->flags |= IOSQE_FIXED_FILE;
+	io_uring_prep_write(sqe, 1, "hello, world\n", 13, 0);
+	res = io_uring_submit(&ring);
+	if (res < 1)
+	{
+		errno = -res;
+		perror("api: error: could not submit write operation to io uring");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	pause();
 	return (ring);
 }
 
