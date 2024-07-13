@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/13 09:54:37                                            */
+/*   Updated:  2024/07/13 09:59:53                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,24 +35,27 @@
 ;
 
 // clang-format off
-#define API_WORKER_COUNT        1
-#define STRINGIFY(x)            (char[]){#x}
-#define TOSTRING(x)             STRINGIFY(x)
-#define API_WORKER_COUNT_STR    TOSTRING(API_WORKER_COUNT)
-#define API_SOCKET_PATH         ((char[]){"/home/user/pong/api_sockets/"})
+#define API_WORKER_COUNT           1
+#define STRINGIFY(x)               (char[]){#x}
+#define TOSTRING(x)                STRINGIFY(x)
+#define API_WORKER_COUNT_STR       TOSTRING(API_WORKER_COUNT)
+#define API_SOCKET_PATH            ((char[]){"/home/user/pong/api_sockets/"})
 // clang-format on
 
-#define NO_EXPAND_DBNAME        0
-#define RESULTS_IN_TEXT         0
-#define RESULTS_IN_BINARY       1
+#define NO_EXPAND_DBNAME           0
+#define RESULTS_IN_TEXT            0
+#define RESULTS_IN_BINARY          1
 
-#define SQ_SIZE                 1024
-#define CQ_SIZE                 65536
-#define MAX_CONN_PER_WORKER     100000
-#define MEM_PER_CONN            5000 // bytes
+#define SQ_SIZE                    1024
+#define CQ_SIZE                    65536
+#define MAX_CONN_PER_WORKER        100000
+#define MEM_PER_CONN               5000 // bytes
 
-#define DB_SOCK_READ_BUFF_SIZE  67108864
-#define DB_SOCK_WRITE_BUFF_SIZE 67108864
+#define DB_SOCK_READ_BUFF_SIZE     67108864
+#define DB_SOCK_WRITE_BUFF_SIZE    67108864
+
+#define DB_CONN_RELATIVE_FD        0
+#define LISTENING_SOCK_RELATIVE_FD 1
 
 c_mutable_token get_base58_token(char *buffer);
 c_mutable_token get_token(char *buffer);
