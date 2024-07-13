@@ -6,13 +6,15 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/12 10:01:11                                            */
+/*   Updated:  2024/07/13 09:52:19                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "api.hpp"
 #include "c_prepare_pg_statement/c_prepare_pg_statement.hpp"
+#include "c_worker_id_to_text.hpp"
 #include <asm-generic/socket.h>
+#include <bits/types/struct_iovec.h>
 #include <cctype>
 #include <cerrno>
 #include <cstddef>
@@ -21,11 +23,13 @@
 #include <fcntl.h>
 #include <iostream>
 #include <liburing.h>
+#include <liburing/io_uring.h>
 #include <map>
 #include <postgresql/libpq-fe.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <unistd.h>
 #include <utility>
-#include <sys/socket.h>
 
 ;
 #pragma GCC diagnostic push
@@ -145,7 +149,7 @@ static void handle_request(char *buffer, PGconn *const dbconnection)
 	endpoint_to_handler.at(std::pair<c_token, c_token>(method, endpoint))(buffer, endpoint.get_end() + 1, dbconnection);
 }
 
-static PGconn *connect_to_database(void)
+static PGconn *connect_to_database(int worker_id)
 {
 	int           status;
 	PGresult     *res;
@@ -154,12 +158,14 @@ static PGconn *connect_to_database(void)
 
 	if (dbconnection == nullptr)
 	{
-		std::cerr << "Api could not connect to the database: not enough memory left on device\n";
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id)
+				  << ": error: could not connect to the database: not enough memory left on device\n";
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	if (PQstatus(dbconnection) != CONNECTION_OK)
 	{
-		std::cerr << "Api could not connect to the database: " << PQerrorMessage(dbconnection);
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id)
+				  << ": error: could not connect to the database: " << PQerrorMessage(dbconnection);
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	res = c_prepare_pg_statement::get_result_of_statement_preparaitions(
@@ -170,101 +176,147 @@ static PGconn *connect_to_database(void)
 	{
 		if (status == PGRES_BAD_RESPONSE)
 		{
-			std::cerr << "api: error: internal database error\n";
+			std::cerr << c_worker_id_to_text::get_name_from_id(worker_id) << ": error: internal database error\n";
 		}
 		else
 		{
-			std::cerr << "api: error: prepare statement failed: " << PQresultErrorMessage(res);
+			std::cerr << c_worker_id_to_text::get_name_from_id(worker_id)
+					  << ": error: prepare statement failed: " << PQresultErrorMessage(res);
 		}
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	PQclear(res);
 	if (PQsetnonblocking(dbconnection, 1) == -1) // set connection to nonblocking mode
 	{
-		std::cerr << "api: error: failed to set database connection to nonblocking mode\n";
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id)
+				  << ": error: failed to set database connection to nonblocking mode\n";
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	return (dbconnection);
 }
 
-static int increase_connection_buffers_and_get_fd(PGconn *dbconnection)
+static int enlarge_connection_buffers_and_get_fd(PGconn *dbconnection, int worker_id)
 {
 	int const connection_fd = PQsocket(dbconnection);
 
-	if (setsockopt(connection_fd, SOL_SOCKET, SO_SNDBUF, (int []){67108864}, sizeof(int)) == -1
-			|| setsockopt(connection_fd, SOL_SOCKET, SO_RCVBUF, (int []){67108864}, sizeof(int)) == -1)
+	if (setsockopt(connection_fd, SOL_SOCKET, SO_SNDBUF, (int[]){DB_SOCK_WRITE_BUFF_SIZE}, sizeof(int)) == -1 ||
+		setsockopt(connection_fd, SOL_SOCKET, SO_RCVBUF, (int[]){DB_SOCK_READ_BUFF_SIZE}, sizeof(int)) == -1)
 	{
-		std::cerr << "api: error: failed to increase database connection buffer sizes\n";
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id)
+				  << ": error: failed to increase database connection buffer sizes\n";
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	return (connection_fd);
 }
 
-static struct io_uring set_up_ring(void)
+static int get_listening_socket(int worker_id)
 {
-	struct io_uring_params params =
+	int const          listening_sock = socket(AF_UNIX, SOCK_STREAM, AF_UNIX);
+	struct sockaddr_un server_addr;
+	int const          slen = sizeof(server_addr);
+
+	if (listening_sock == -1)
 	{
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to create listening socket");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	server_addr.sun_family = AF_UNIX;
+	strcpy(server_addr.sun_path, c_worker_id_to_text::get_socket_name_from_id(worker_id));
+	unlink(c_worker_id_to_text::get_socket_name_from_id(worker_id));
+	if (bind(listening_sock, reinterpret_cast<struct sockaddr *>(&server_addr), slen) == -1)
+	{
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to bind listening socket to the file system");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	if (listen(listening_sock, INT_MAX) == -1)
+	{
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to beginning listening in api socket");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	return (listening_sock);
+}
+
+static struct io_uring get_ring(int dbconnection_fd, int listening_sock_fd, struct iovec shared_buffer, int worker_id)
+{
+	struct io_uring_params params = {
 		.sq_entries = SQ_SIZE,
 		.cq_entries = CQ_SIZE,
 		.flags = IORING_SETUP_CQSIZE | IORING_SETUP_SUBMIT_ALL | IORING_SETUP_COOP_TASKRUN | IORING_SETUP_SINGLE_ISSUER,
 	};
 	struct io_uring ring;
-	struct io_uring_sqe *sqe;
-	int res;
-	int const fd = open("/dev/stdout", O_RDWR);
+	int             res;
 
-	if (fd == -1)
-	{
-		perror("api: error: failed to open stdout");
-		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
-	}
 	res = io_uring_queue_init_params(SQ_SIZE, &ring, &params);
 	if (res < 0)
 	{
 		errno = -res;
-		perror("api: error: failed to create io uring");
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to create io uring");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	res = io_uring_register_ring_fd(&ring);
 	if (res < 0)
 	{
 		errno = -res;
-		perror("api: error: failed to register io uring fd");
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to register io uring fd in io uring");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	res = io_uring_register_files(&ring, (int [1]){fd}, 1);
+	res = io_uring_register_files_sparse(&ring, MAX_CONN_PER_WORKER);
 	if (res < 0)
 	{
 		errno = -res;
-		perror("api: error: failed to register stdout fd");
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to register fd table io uring");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	sqe = io_uring_get_sqe(&ring);
-	if (sqe == nullptr)
-	{
-		std::cerr << "api: error: sq full\n";
-		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
-	}
-	sqe->flags |= IOSQE_FIXED_FILE;
-	io_uring_prep_write(sqe, 1, "hello, world\n", 13, 0);
-	res = io_uring_submit(&ring);
-	if (res < 1)
+	res = io_uring_register_files_update(&ring, 0, (int[2]){dbconnection_fd, listening_sock_fd}, 2);
+	if (res < 0)
 	{
 		errno = -res;
-		perror("api: error: could not submit write operation to io uring");
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to register the fd of the database connection in io uring");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	pause();
+	res = io_uring_register_buffers(&ring, &shared_buffer, 1);
+	if (res < 0)
+	{
+		errno = -res;
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to register the shared buffers in io uring");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
 	return (ring);
+}
+
+static struct iovec get_shared_buffer(int worker_id)
+{
+	struct iovec shared_buffer = {.iov_base = calloc(MAX_CONN_PER_WORKER, MEM_PER_CONN),
+								  .iov_len = static_cast<size_t>(MAX_CONN_PER_WORKER) * MEM_PER_CONN};
+
+	if (shared_buffer.iov_base == nullptr)
+	{
+		std::cerr << c_worker_id_to_text::get_name_from_id(worker_id);
+		perror(": error: failed to allocate the shared buffer");
+		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+	}
+	return (shared_buffer);
 }
 
 int main(void)
 {
-	PGconn *const   dbconnection = connect_to_database(); // may exit program
-	int const       connection_fd = increase_connection_buffers_and_get_fd(dbconnection); // may exit program
-	struct io_uring ring = set_up_ring(); // may exit program
+	int                worker_id = 1;
+	PGconn *const      dbconnection = connect_to_database(worker_id);                                    // may exit
+	int const          dbconnection_fd = enlarge_connection_buffers_and_get_fd(dbconnection, worker_id); // may exit
+	int const          listening_sock_fd = get_listening_socket(worker_id);                              // may exit
+	const struct iovec shared_buffer = get_shared_buffer(worker_id);                                     // may exit
+	struct io_uring    ring = get_ring(dbconnection_fd, listening_sock_fd, shared_buffer, worker_id);    // may exit
 
 	PQfinish(dbconnection);
+	free(shared_buffer.iov_base);
 	return (EXIT_SUCCESS);
 }
 
