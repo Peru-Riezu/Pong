@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/13 19:48:05                                            */
+/*   Updated:  2024/07/14 16:18:39                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@
 #define CQ_SIZE                    65536
 #define MAX_CONN_PER_WORKER        100000
 #define MEM_PER_CONN               5000 // bytes
+_Static_assert(MEM_PER_CONN >= 4096, "");
 
 #define DB_SOCK_READ_BUFF_SIZE     67108864
 #define DB_SOCK_WRITE_BUFF_SIZE    67108864
@@ -56,20 +57,38 @@
 #define DB_CONN_RELATIVE_FD        0
 #define LISTENING_SOCK_RELATIVE_FD 1
 
-typedef int     t_e_state;
+typedef int t_e_state;
 
-namespace state
+namespace overseer_state
 {
 	enum e_base_state : t_e_state
 	{
 		invalid_state,
-		listenning_for_connections,
-		waiting_to_read_from_db,
-		waiting_to_write_and_read_from_db,
 		waiting_for_connections,
 		waiting_for_headers,
 		closing_connection
 	};
+
+	namespace dbconnection
+	{
+		enum e_sub_state : t_e_state
+		{
+			waiting_to_read_from_db = closing_connection + 1,
+			waiting_to_read_and_write_from_db,
+			waiting_to_read_and_syncing_whit_db,
+			waiting_to_read_write_and_syncing_whit_db
+		};
+	} // namespace dbconnection
+
+	namespace listenning_socket
+	{
+		enum e_sub_state : t_e_state
+		{
+			listenning_for_connections = dbconnection::waiting_to_read_write_and_syncing_whit_db + 1,
+			waiting_for_closed_connections,
+			preparing_to_listen_for_connections
+		};
+	} // namespace listenning_socket
 
 	namespace endpoint
 	{
@@ -79,7 +98,7 @@ namespace state
 			{
 				enum e_sub_state : t_e_state
 				{
-					parsing = closing_connection + 1,
+					parsing = listenning_socket::preparing_to_listen_for_connections + 1,
 					waiting_for_db_response,
 					sending_response
 				};
@@ -515,12 +534,12 @@ namespace state
 			} // namespace leave_group_chat
 		}     // namespace delete_endpoint
 	}         // namespace endpoint
-} // namespace state
+} // namespace overseer_state
 
-c_mutable_token get_base58_token(char *buffer);
-c_mutable_token get_token(char *buffer);
-c_mutable_token decode_token(c_mutable_token token);
+c_mutable_token        get_base58_token(char *buffer);
+c_mutable_token        get_token(char *buffer);
+c_mutable_token        decode_token(c_mutable_token token);
 
-t_e_state parse_headers_and_get_new_state(char *buffer);
+t_e_state              parse_headers_and_get_new_state(char *buffer);
 
 #pragma GCC diagnostic pop
