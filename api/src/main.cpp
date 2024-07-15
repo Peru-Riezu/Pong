@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/14 14:10:38                                            */
+/*   Updated:  2024/07/15 16:53:48                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,6 @@ static PGconn *connect_to_database(int worker_id)
 	{
 		std::cerr << "daemon: err: " << c_worker_id_to_text::get_name_from_id(worker_id)
 				  << ":failed to set database connection to nonblocking mode\n";
-		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
-	}
-	if (PQenterPipelineMode(dbconnection) != 1)
-	{
-		std::cerr << "daemon: err: " << c_worker_id_to_text::get_name_from_id(worker_id)
-				  << ":failed to set database connection to pipline mode\n";
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	return (dbconnection);
@@ -223,9 +217,9 @@ static c_overseer *get_overseers(PGconn *dbconnection, struct io_uring *ring, vo
 		perror(": failed to allocate the array of overseers");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	overseers[0].set_new_state(overseer_state::dbconnection::waiting_to_read_from_db);
+//	overseers[0].set_new_state(overseer_state::dbconnection::waiting_to_read_from_db);
 	overseers[0].set_relative_index(0);
-	overseers[1].set_new_state(overseer_state::dbconnection::waiting_to_read_from_db);
+//	overseers[1].set_new_state(overseer_state::dbconnection::waiting_to_read_from_db);
 	overseers[1].set_relative_index(1);
 	c_overseer::set_listenning_socket_overseer(&overseers[1]);
 	c_overseer::set_dbconnection_overseer(&overseers[0]);
@@ -253,7 +247,7 @@ int main(void)
 	struct io_uring    ring = get_ring(dbconnection_fd, listening_sock_fd, shared_buffer, worker_id);    // may exit
 	c_overseer *const  overseers = get_overseers(dbconnection, &ring, shared_buffer.iov_base, worker_id);
 
-
+	pause();
 	PQfinish(dbconnection);
 	free(shared_buffer.iov_base);
 	free(overseers);

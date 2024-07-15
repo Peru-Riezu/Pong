@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/14 16:18:39                                            */
+/*   Updated:  2024/07/15 18:25:55                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,10 +73,8 @@ namespace overseer_state
 	{
 		enum e_sub_state : t_e_state
 		{
-			waiting_to_read_from_db = closing_connection + 1,
-			waiting_to_read_and_write_from_db,
-			waiting_to_read_and_syncing_whit_db,
-			waiting_to_read_write_and_syncing_whit_db
+			waiting_to_read_from = closing_connection + 1,
+			waiting_to_read_and_write
 		};
 	} // namespace dbconnection
 
@@ -84,7 +82,7 @@ namespace overseer_state
 	{
 		enum e_sub_state : t_e_state
 		{
-			listenning_for_connections = dbconnection::waiting_to_read_write_and_syncing_whit_db + 1,
+			listenning_for_connections = dbconnection::waiting_to_read_and_write + 1,
 			waiting_for_closed_connections,
 			preparing_to_listen_for_connections
 		};

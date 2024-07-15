@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/09 17:27:36                                            */
-/*   Updated:  2024/07/09 18:17:00                                            */
+/*   Updated:  2024/07/15 10:17:25                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,12 @@ class c_prepare_pg_statement
 				i++;
 				if (PQresultStatus(res) != PGRES_COMMAND_OK || i == statement_names.size())
 				{
+					statement_names.clear();
+					statements.clear();
+					param_numbers.clear();
+					statement_names.shrink_to_fit();
+					statements.shrink_to_fit();
+					param_numbers.shrink_to_fit();
 					return (res);
 				}
 				PQclear(res);
