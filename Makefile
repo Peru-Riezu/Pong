@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/17 13:51:33                                             #
+#    Updated:  2024/07/17 19:58:24                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,13 +21,13 @@ SHELL :=			bash
 .DEFAULT_GOAL := all
 
 create_schema:
-	psql pongdb -f ./db/create_tables.sql
+	@psql pongdb -f ./db/create_tables.sql
 
 /usr/local/share/ca-certificates/pong.com.crt:
-	openssl req -x509 -out ./nginx_config/pong.com.crt -keyout ./nginx_config/pong.com.key -newkey rsa:2048 -nodes \
+	@openssl req -x509 -out ./nginx_config/pong.com.crt -keyout ./nginx_config/pong.com.key -newkey rsa:2048 -nodes \
 		-sha256 -subj '/CN=pong.com'
-	sudo cp ./nginx_config/pong.com.crt /usr/local/share/ca-certificates/
-	sudo update-ca-certificates
+	@sudo cp ./nginx_config/pong.com.crt /usr/local/share/ca-certificates/
+	@sudo update-ca-certificates
 
 register_test_domain: /usr/local/share/ca-certificates/pong.com.crt
 	@grep -Fxq "127.0.0.1 pong.com" "/etc/hosts" || (echo "127.0.0.1 pong.com" | \
@@ -49,11 +49,22 @@ config_system: register_test_domain
 	@grep -Fxq "* soft memlock unlimited" "/etc/security/limits.conf" || \
 		(echo "* soft memlock unlimited" | sudo tee -a "/etc/security/limits.conf" > /dev/null && echo reboot needed)
 
-all: create_schema config_system
+nginx_up:
+	@sudo nginx -g 'daemon off;' -c /home/superuser/pong/nginx_config/nginx.conf
+
+api_up:
+	@./api/api
+
+postgres_up:
+	/usr/lib/postgresql/15/bin/postgres -D data
+
+
+all: create_schema config_system create_aux_dirs
+	@mkdir api_sockets
 
 clean:
 	@make -C api --no-print-directory clean
-	@rm -rf api_sockets
+	@rm -rf api_sockets/*
 
 fclean: clean
 	@make -C api --no-print-directory fclean
