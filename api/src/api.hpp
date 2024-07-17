@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/15 18:25:55                                            */
+/*   Updated:  2024/07/17 16:37:32                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@
 #define STRINGIFY(x)               (char[]){#x}
 #define TOSTRING(x)                STRINGIFY(x)
 #define API_WORKER_COUNT_STR       TOSTRING(API_WORKER_COUNT)
-#define API_SOCKET_PATH            ((char[]){"/home/user/pong/api_sockets/"})
+#define API_SOCKET_PATH            ((char[]){"/home/superuser/pong/api_sockets/"})
 // clang-format on
 
 #define NO_EXPAND_DBNAME           0

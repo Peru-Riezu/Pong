@@ -4,14 +4,14 @@
 !_TAG_OUTPUT_FILESEP	slash	/slash or backslash/;"	extras:pseudo
 !_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/;"	extras:pseudo
 !_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/;"	extras:pseudo
-!_TAG_PROC_CWD	/home/user/pong/api/	//;"	extras:pseudo
+!_TAG_PROC_CWD	/home/superuser/pong/api/	//;"	extras:pseudo
 !_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//;"	extras:pseudo
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/;"	extras:pseudo
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/;"	extras:pseudo
 !_TAG_PROGRAM_VERSION	5.9.0	//;"	extras:pseudo
 ../api.hpp	src/c_overseer/c_overseer.hpp	/^#include "..\/api.hpp"/;"	kind:header	line:15	language:C++	roles:local	extras:reference
 ../c_prepare_pg_statement/c_prepare_pg_statement.hpp	src/put_endpoint_handlers/create_account.cpp	/^#include "..\/c_prepare_pg_statement\/c_prepare_pg_statement.hpp"/;"	kind:header	line:13	language:C++	roles:local	extras:reference
-API_SOCKET_PATH	src/api.hpp	/^#define API_SOCKET_PATH /;"	kind:macro	line:41	language:C++	roles:def	end:41	macrodef:((char[]){"/home/user/pong/api_sockets/"})
+API_SOCKET_PATH	src/api.hpp	/^#define API_SOCKET_PATH /;"	kind:macro	line:41	language:C++	roles:def	end:41	macrodef:((char[]){"/home/superuser/pong/api_sockets/"})
 API_WORKER_COUNT	src/api.hpp	/^#define API_WORKER_COUNT /;"	kind:macro	line:37	language:C++	roles:def	end:37	macrodef:1
 API_WORKER_COUNT_STR	src/api.hpp	/^#define API_WORKER_COUNT_STR /;"	kind:macro	line:40	language:C++	roles:def	end:40	macrodef:TOSTRING(API_WORKER_COUNT)
 CQ_SIZE	src/api.hpp	/^#define CQ_SIZE /;"	kind:macro	line:49	language:C++	roles:def	end:49	macrodef:65536
@@ -38,7 +38,7 @@ add_contact	src/api.hpp	/^			namespace add_contact$/;"	kind:namespace	line:441	l
 add_user_qry	src/put_endpoint_handlers/create_account.cpp	/^static c_prepare_pg_statement add_user_qry("add_user",$/;"	kind:variable	line:32	language:C++	typeref:typename:c_prepare_pg_statement	file:	roles:def	extras:fileScope	end:36	properties:static
 algorithm	src/c_token/c_mutable_token.cpp	/^#include <algorithm>/;"	kind:header	line:14	language:C++	roles:system	extras:reference
 algorithm	src/c_token/c_token.cpp	/^#include <algorithm>/;"	kind:header	line:14	language:C++	roles:system	extras:reference
-api.hpp	src/api.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:543	epoch:1721060755
+api.hpp	src/api.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:543	epoch:1721227052
 api.hpp	src/c_worker_id_to_text.hpp	/^#include "api.hpp"/;"	kind:header	line:15	language:C++	roles:local	extras:reference
 api.hpp	src/main.cpp	/^#include "api.hpp"/;"	kind:header	line:13	language:C++	roles:local	extras:reference
 api.hpp	src/parse_headers_and_get_new_state.cpp	/^#include "api.hpp"/;"	kind:header	line:13	language:C++	roles:local	extras:reference
@@ -72,7 +72,7 @@ c_mutable_token	src/c_token/c_token.hpp	/^		c_mutable_token(char *beginning_exem
 c_mutable_token	src/c_token/c_token.hpp	/^		c_mutable_token(void);$/;"	kind:prototype	line:67	language:C++	scope:class:c_mutable_token	access:public	signature:(void)	roles:def	end:67
 c_mutable_token	src/c_token/c_token.hpp	/^		explicit c_mutable_token(char *exemplum);$/;"	kind:prototype	line:66	language:C++	scope:class:c_mutable_token	access:public	signature:(char * exemplum)	roles:def	end:66	properties:explicit
 c_mutable_token	src/c_token/c_token.hpp	/^class c_mutable_token$/;"	kind:class	line:56	language:C++	roles:def	end:80
-c_mutable_token.cpp	src/c_token/c_mutable_token.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:118	epoch:1720538302
+c_mutable_token.cpp	src/c_token/c_mutable_token.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:118	epoch:1721226308
 c_mutable_token::beginning	src/c_token/c_token.hpp	/^		char  *beginning;$/;"	kind:member	line:59	language:C++	scope:class:c_mutable_token	typeref:typename:char *	access:private	roles:def	extras:qualified
 c_mutable_token::c_mutable_token	src/c_token/c_mutable_token.cpp	/^c_mutable_token::c_mutable_token(c_mutable_token &exemplum)$/;"	kind:function	line:39	language:C++	scope:class:c_mutable_token	signature:(c_mutable_token & exemplum)	roles:def	extras:qualified
 c_mutable_token::c_mutable_token	src/c_token/c_mutable_token.cpp	/^c_mutable_token::c_mutable_token(char *beginning_exemplum, char *end_exemplum)$/;"	kind:function	line:34	language:C++	scope:class:c_mutable_token	signature:(char * beginning_exemplum,char * end_exemplum)	roles:def	extras:qualified
@@ -101,9 +101,9 @@ c_mutable_token::shrink_by	src/c_token/c_mutable_token.cpp	/^void c_mutable_toke
 c_mutable_token::shrink_by	src/c_token/c_token.hpp	/^		void                   shrink_by(size_t value);$/;"	kind:prototype	line:79	language:C++	scope:class:c_mutable_token	typeref:typename:void	access:public	signature:(size_t value)	roles:def	extras:qualified
 c_mutable_token::size	src/c_token/c_token.hpp	/^		size_t size;$/;"	kind:member	line:61	language:C++	scope:class:c_mutable_token	typeref:typename:size_t	access:private	roles:def	extras:qualified
 c_overseer	src/c_overseer/c_overseer.hpp	/^class c_overseer$/;"	kind:class	line:35	language:C++	roles:def	end:66
-c_overseer.cpp	src/c_overseer/c_overseer.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:168	epoch:1721055190
+c_overseer.cpp	src/c_overseer/c_overseer.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:168	epoch:1721226308
 c_overseer.hpp	src/c_overseer/c_overseer.cpp	/^#include "c_overseer.hpp"/;"	kind:header	line:13	language:C++	roles:local	extras:reference
-c_overseer.hpp	src/c_overseer/c_overseer.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:68	epoch:1720965561
+c_overseer.hpp	src/c_overseer/c_overseer.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:68	epoch:1721226308
 c_overseer/c_overseer.hpp	src/main.cpp	/^#include "c_overseer\/c_overseer.hpp"/;"	kind:header	line:14	language:C++	roles:local	extras:reference
 c_overseer::aviable_head	src/c_overseer/c_overseer.hpp	/^		static inline c_overseer      *aviable_head;$/;"	kind:member	line:41	language:C++	scope:class:c_overseer	typeref:typename:c_overseer *	access:private	roles:def	extras:qualified	properties:inline,static
 c_overseer::aviable_tail	src/c_overseer/c_overseer.hpp	/^		static inline c_overseer      *aviable_tail;$/;"	kind:member	line:42	language:C++	scope:class:c_overseer	typeref:typename:c_overseer *	access:private	roles:def	extras:qualified	properties:inline,static
@@ -147,7 +147,7 @@ c_overseer::set_ring	src/c_overseer/c_overseer.hpp	/^		static void set_ring(stru
 c_overseer::submisioin_ring_aviable_entries	src/c_overseer/c_overseer.hpp	/^		static inline int             submisioin_ring_aviable_entries = SQ_SIZE;$/;"	kind:member	line:45	language:C++	scope:class:c_overseer	typeref:typename:int	access:private	roles:def	extras:qualified	properties:inline,static
 c_prepare_pg_statement	src/c_prepare_pg_statement/c_prepare_pg_statement.hpp	/^		c_prepare_pg_statement(char const *statement_name, char const *statement, int param_number)$/;"	kind:function	line:44	language:C++	scope:class:c_prepare_pg_statement	access:public	signature:(char const * statement_name,char const * statement,int param_number)	roles:def	end:49
 c_prepare_pg_statement	src/c_prepare_pg_statement/c_prepare_pg_statement.hpp	/^class c_prepare_pg_statement$/;"	kind:class	line:36	language:C++	roles:def	end:70
-c_prepare_pg_statement.hpp	src/c_prepare_pg_statement/c_prepare_pg_statement.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:72	epoch:1721034885
+c_prepare_pg_statement.hpp	src/c_prepare_pg_statement/c_prepare_pg_statement.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:72	epoch:1721226308
 c_prepare_pg_statement/c_prepare_pg_statement.hpp	src/main.cpp	/^#include "c_prepare_pg_statement\/c_prepare_pg_statement.hpp"/;"	kind:header	line:15	language:C++	roles:local	extras:reference
 c_prepare_pg_statement::c_prepare_pg_statement	src/c_prepare_pg_statement/c_prepare_pg_statement.hpp	/^		c_prepare_pg_statement(char const *statement_name, char const *statement, int param_number)$/;"	kind:function	line:44	language:C++	scope:class:c_prepare_pg_statement	access:public	signature:(char const * statement_name,char const * statement,int param_number)	roles:def	extras:qualified
 c_prepare_pg_statement::get_result_of_statement_preparaitions	src/c_prepare_pg_statement/c_prepare_pg_statement.hpp	/^		static PGresult *get_result_of_statement_preparaitions(PGconn *conn)$/;"	kind:function	line:51	language:C++	scope:class:c_prepare_pg_statement	typeref:typename:PGresult *	access:public	signature:(PGconn * conn)	roles:def	extras:qualified	properties:static
@@ -163,10 +163,10 @@ c_token	src/c_token/c_token.hpp	/^		c_token(char const *beginning_exemplum, char
 c_token	src/c_token/c_token.hpp	/^		c_token(void);$/;"	kind:prototype	line:44	language:C++	scope:class:c_token	access:public	signature:(void)	roles:def	end:44
 c_token	src/c_token/c_token.hpp	/^		explicit c_token(char const *exemplum);$/;"	kind:prototype	line:43	language:C++	scope:class:c_token	access:public	signature:(char const * exemplum)	roles:def	end:43	properties:explicit
 c_token	src/c_token/c_token.hpp	/^class c_token$/;"	kind:class	line:33	language:C++	roles:def	end:54
-c_token.cpp	src/c_token/c_token.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:103	epoch:1720538302
+c_token.cpp	src/c_token/c_token.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:103	epoch:1721226308
 c_token.hpp	src/c_token/c_mutable_token.cpp	/^#include "c_token.hpp"/;"	kind:header	line:13	language:C++	roles:local	extras:reference
 c_token.hpp	src/c_token/c_token.cpp	/^#include "c_token.hpp"/;"	kind:header	line:13	language:C++	roles:local	extras:reference
-c_token.hpp	src/c_token/c_token.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:82	epoch:1720538302
+c_token.hpp	src/c_token/c_token.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:82	epoch:1721226308
 c_token/c_token.hpp	src/api.hpp	/^#include "c_token\/c_token.hpp"/;"	kind:header	line:15	language:C++	roles:local	extras:reference
 c_token::beginning	src/c_token/c_token.hpp	/^		char const *beginning;$/;"	kind:member	line:36	language:C++	scope:class:c_token	typeref:typename:char const *	access:private	roles:def	extras:qualified
 c_token::c_token	src/c_token/c_token.cpp	/^c_token::c_token(c_token const &exemplum) : beginning(exemplum.beginning), end(exemplum.end), si/;"	kind:function	line:40	language:C++	scope:class:c_token	signature:(c_token const & exemplum)	roles:def	extras:qualified
@@ -193,7 +193,7 @@ c_token::operator =	src/c_token/c_token.hpp	/^		c_token const       &operator=(c
 c_token::size	src/c_token/c_token.hpp	/^		size_t      size;$/;"	kind:member	line:38	language:C++	scope:class:c_token	typeref:typename:size_t	access:private	roles:def	extras:qualified
 c_worker_id_to_text	src/c_worker_id_to_text.hpp	/^		c_worker_id_to_text(void)$/;"	kind:function	line:46	language:C++	scope:class:c_worker_id_to_text	access:public	signature:(void)	roles:def	end:54
 c_worker_id_to_text	src/c_worker_id_to_text.hpp	/^static inline class c_worker_id_to_text$/;"	kind:class	line:38	language:C++	roles:def	end:65
-c_worker_id_to_text.hpp	src/c_worker_id_to_text.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:67	epoch:1720857068
+c_worker_id_to_text.hpp	src/c_worker_id_to_text.hpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:67	epoch:1721226308
 c_worker_id_to_text.hpp	src/main.cpp	/^#include "c_worker_id_to_text.hpp"/;"	kind:header	line:16	language:C++	roles:local	extras:reference
 c_worker_id_to_text::c_worker_id_to_text	src/c_worker_id_to_text.hpp	/^		c_worker_id_to_text(void)$/;"	kind:function	line:46	language:C++	scope:class:c_worker_id_to_text	access:public	signature:(void)	roles:def	extras:qualified
 c_worker_id_to_text::get_name_from_id	src/c_worker_id_to_text.hpp	/^		static char const *get_name_from_id(int id)$/;"	kind:function	line:56	language:C++	scope:class:c_worker_id_to_text	typeref:typename:char const *	access:public	signature:(int id)	roles:def	extras:qualified	properties:static
@@ -216,7 +216,7 @@ connection_fd	src/main.cpp	/^	int const connection_fd = PQsocket(dbconnection);$
 cqe	src/c_overseer/c_overseer.cpp	/^void c_overseer::notify_ring_result(struct io_uring_cqe *cqe, c_overseer *overseers)$/;"	kind:parameter	line:94	language:C++	scope:function:c_overseer::notify_ring_result	typeref:struct:io_uring_cqe *	file:	roles:def	extras:fileScope	nth:0
 cqe	src/c_overseer/c_overseer.hpp	/^		void notify_ring_result(struct io_uring_cqe *cqe, c_overseer *overseers);$/;"	kind:parameter	line:58	language:C++	scope:prototype:c_overseer::notify_ring_result	typeref:struct:io_uring_cqe *	file:	roles:def	extras:fileScope	nth:0
 create_account	src/api.hpp	/^			namespace create_account$/;"	kind:namespace	line:451	language:C++	scope:namespace:overseer_state::endpoint::put_endpoint	roles:def	end:459
-create_account.cpp	src/put_endpoint_handlers/create_account.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:38	epoch:1720956091
+create_account.cpp	src/put_endpoint_handlers/create_account.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:38	epoch:1721226308
 create_group_chat	src/api.hpp	/^			namespace create_group_chat$/;"	kind:namespace	line:411	language:C++	scope:namespace:overseer_state::endpoint::put_endpoint	roles:def	end:419
 create_tournament	src/api.hpp	/^			namespace create_tournament$/;"	kind:namespace	line:401	language:C++	scope:namespace:overseer_state::endpoint::put_endpoint	roles:def	end:409
 cstddef	src/c_token/c_token.cpp	/^#include <cstddef>/;"	kind:header	line:16	language:C++	roles:system	extras:reference
@@ -397,7 +397,7 @@ listenning_for_connections	src/api.hpp	/^			listenning_for_connections = dbconne
 listenning_socket	src/api.hpp	/^	namespace listenning_socket$/;"	kind:namespace	line:81	language:C++	scope:namespace:overseer_state	roles:def	end:89
 listenning_socket_overseer	src/c_overseer/c_overseer.hpp	/^		static inline c_overseer      *listenning_socket_overseer;$/;"	kind:member	line:38	language:C++	scope:class:c_overseer	typeref:typename:c_overseer *	access:private	roles:def	end:38	properties:inline,static
 main	src/main.cpp	/^int main(void)$/;"	kind:function	line:240	language:C++	typeref:typename:int	signature:(void)	roles:def	end:255
-main.cpp	src/main.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:257	epoch:1721060727
+main.cpp	src/main.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:257	epoch:1721233784
 make_aviable	src/c_overseer/c_overseer.cpp	/^void c_overseer::make_aviable(void)$/;"	kind:function	line:53	language:C++	scope:class:c_overseer	typeref:typename:void	signature:(void)	roles:def	end:64
 make_aviable	src/c_overseer/c_overseer.hpp	/^		void make_aviable(void);$/;"	kind:prototype	line:56	language:C++	scope:class:c_overseer	typeref:typename:void	access:public	signature:(void)	roles:def	end:56
 map	src/parse_headers_and_get_new_state.cpp	/^#include <map>/;"	kind:header	line:24	language:C++	roles:system	extras:reference
@@ -678,7 +678,7 @@ param_numbers	src/c_prepare_pg_statement/c_prepare_pg_statement.hpp	/^		static i
 params	src/main.cpp	/^	struct io_uring_params params = {$/;"	kind:local	line:146	language:C++	scope:function:get_ring	typeref:struct:io_uring_params	file:	roles:def	extras:fileScope	end:150
 parse_headers_and_get_new_state	src/api.hpp	/^t_e_state              parse_headers_and_get_new_state(char *buffer);$/;"	kind:prototype	line:541	language:C++	typeref:typename:t_e_state	signature:(char * buffer)	roles:def	end:541
 parse_headers_and_get_new_state	src/parse_headers_and_get_new_state.cpp	/^t_e_state parse_headers_and_get_new_state(char *buffer)$/;"	kind:function	line:93	language:C++	typeref:typename:t_e_state	signature:(char * buffer)	roles:def	end:196
-parse_headers_and_get_new_state.cpp	src/parse_headers_and_get_new_state.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:198	epoch:1720954296
+parse_headers_and_get_new_state.cpp	src/parse_headers_and_get_new_state.cpp	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:198	epoch:1721226308
 parsing	src/api.hpp	/^					parsing = accept_invite_to_group_chat::parsing + 1,$/;"	kind:enumerator	line:189	language:C++	scope:enum:overseer_state::endpoint::post_endpoint::accept_invite_to_tournament::e_sub_state	access:public	roles:def
 parsing	src/api.hpp	/^					parsing = accept_invite_to_match::parsing + 1,$/;"	kind:enumerator	line:209	language:C++	scope:enum:overseer_state::endpoint::post_endpoint::leave_tournament::e_sub_state	access:public	roles:def
 parsing	src/api.hpp	/^					parsing = accept_invite_to_tournament::parsing + 1,$/;"	kind:enumerator	line:199	language:C++	scope:enum:overseer_state::endpoint::post_endpoint::accept_invite_to_match::e_sub_state	access:public	roles:def
