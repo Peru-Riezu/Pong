@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/17 19:58:24                                             #
+#    Updated:  2024/07/18 23:44:20                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,8 +56,7 @@ api_up:
 	@./api/api
 
 postgres_up:
-	/usr/lib/postgresql/15/bin/postgres -D data
-
+	/usr/lib/postgresql/15/bin/postgres "-D" "/var/lib/postgresql/15/main" "-c" "config_file=/etc/postgresql/15/main/postgresql.conf"
 
 all: create_schema config_system create_aux_dirs
 	@mkdir api_sockets
