@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/18 23:44:20                                             #
+#    Updated:  2024/07/19 12:53:36                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@
 
 ################################################################################
 
-SHELL :=			bash
+SHELL :=	bash
+USER :=		$(shell echo $$USER)
 
 ################################################################################
 
@@ -33,7 +34,19 @@ register_test_domain: /usr/local/share/ca-certificates/pong.com.crt
 	@grep -Fxq "127.0.0.1 pong.com" "/etc/hosts" || (echo "127.0.0.1 pong.com" | \
 		sudo tee -a "/etc/hosts" > /dev/null)
 
-config_system: register_test_domain
+create_run_dir:
+	-@sudo mkdir /var/run/pong_db
+	-@sudo chown superuser /var/run/pong_db
+
+ifeq ($(filter ssl-cert, $(shell groups $(USER))),)
+add_user_to_ssl_group:
+		@sudo usermod -a -G ssl-cert $(USER)
+		@echo reboot needed
+else
+add_user_to_ssl_group:
+endif
+
+config_system: register_test_domain 
 	@grep -Fxq "vm.overcommit_memory=1" "/etc/sysctl.conf" || (echo "vm.overcommit_memory=1" | \
 		sudo tee -a "/etc/sysctl.conf" > /dev/null && echo reboot needed)
 	@grep -Fxq "* hard data unlimited" "/etc/security/limits.conf" || \
@@ -50,13 +63,13 @@ config_system: register_test_domain
 		(echo "* soft memlock unlimited" | sudo tee -a "/etc/security/limits.conf" > /dev/null && echo reboot needed)
 
 nginx_up:
-	@sudo nginx -g 'daemon off;' -c /home/superuser/pong/nginx_config/nginx.conf
+	@sudo nginx -g 'daemon off; user $(USER);' -c /home/superuser/pong/nginx_config/nginx.conf
 
 api_up:
 	@./api/api
 
-postgres_up:
-	/usr/lib/postgresql/15/bin/postgres "-D" "/var/lib/postgresql/15/main" "-c" "config_file=/etc/postgresql/15/main/postgresql.conf"
+postgres_up: add_user_to_ssl_group create_run_dir
+	/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf"
 
 all: create_schema config_system create_aux_dirs
 	@mkdir api_sockets

@@ -1,0 +1,1 @@
+/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf"

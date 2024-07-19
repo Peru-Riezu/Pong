@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/17 18:29:44                                            */
+/*   Updated:  2024/07/19 14:19:49                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static PGconn *connect_to_database(int worker_id)
 	int           status;
 	PGresult     *res;
 	PGconn *const dbconnection =
-		PQconnectdbParams((char *[]){"dbname", nullptr}, (char *[]){"pongdb", nullptr}, NO_EXPAND_DBNAME);
+		PQconnectdbParams((char *[]){"host", "dbname", nullptr}, (char *[]){"/var/run/pong_db", "pongdb", nullptr}, NO_EXPAND_DBNAME);
 
 	if (dbconnection == nullptr)
 	{
