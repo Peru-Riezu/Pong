@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/14 11:23:30                                            */
-/*   Updated:  2024/07/14 13:21:30                                            */
+/*   Updated:  2024/07/19 19:10:43                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,7 @@
 
 static c_prepare_pg_statement add_user_qry("add_user",
 										   "insert into user_t (name, password, nick_name)"
-										   "values ($1::char(7), $2::char(44), $3::varchar(30))"
-										   "returning $4::integer;",
-										   4);
+										   "values ($1::char(7), $2::char(44), $3::varchar(30))",
+										   3);
 
 #pragma GCC diagnostic        pop
