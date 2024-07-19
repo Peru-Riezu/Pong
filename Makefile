@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/19 16:14:37                                             #
+#    Updated:  2024/07/20 01:55:45                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,8 +22,10 @@ USER :=		$(shell echo $$USER)
 .DEFAULT_GOAL := all
 
 create_schema:
-	@/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf" &> /dev/null
-	psql -h /var/run/pong_db -d pongdb -f ./db/create_tables.sql
+	@/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf" \
+		&> /dev/null &
+	@sleep 1
+	@psql -h /var/run/pong_db -d pongdb -f ./db/create_tables.sql
 	@pkill postgres
 
 /usr/local/share/ca-certificates/pong.com.crt:
@@ -37,8 +39,17 @@ register_test_domain: /usr/local/share/ca-certificates/pong.com.crt
 		sudo tee -a "/etc/hosts" > /dev/null)
 
 create_run_dir:
-	-@sudo mkdir /var/run/pong_db
-	-@sudo chown superuser /var/run/pong_db
+	-@sudo mkdir /var/run/pong_db &> /dev/null || true
+	-@sudo chown $(USER) /var/run/pong_db &> /dev/null || true
+	-@mkdir ./db/config/conf.d/ &> /dev/null || true
+	-@mkdir ./db/data/main/pg_notify/ &> /dev/null || true
+	-@mkdir ./db/data/main/pg_replslot/ &> /dev/null || true
+	-@mkdir ./db/data/main/pg_tblspc/ &> /dev/null || true
+	-@mkdir ./db/data/main/pg_twophase/ &> /dev/null || true
+	-@mkdir ./db/data/main/pg_commit_ts/ &> /dev/null || true
+	-@mkdir ./db/data/main/pg_snapshots/ &> /dev/null || true
+	-@mkdir -p ./db/data/main/pg_logical/snapshots/ &> /dev/null || true
+	-@mkdir -p ./db/data/main/pg_logical/mappings/ &> /dev/null || true
 
 ifeq ($(filter ssl-cert, $(shell groups $(USER))),)
 add_user_to_ssl_group:
@@ -48,7 +59,10 @@ else
 add_user_to_ssl_group:
 endif
 
-config_system: register_test_domain 
+set_permissions:
+	@chmod 700 db/data/main
+
+config_system: register_test_domain add_user_to_ssl_group create_run_dir set_permissions
 	@grep -Fxq "vm.overcommit_memory=1" "/etc/sysctl.conf" || (echo "vm.overcommit_memory=1" | \
 		sudo tee -a "/etc/sysctl.conf" > /dev/null && echo reboot needed)
 	@grep -Fxq "net.core.wmem_default=4608" "/etc/sysctl.conf" || (echo "net.core.wmem_default=4608" | \
@@ -77,7 +91,7 @@ api_up:
 	@make -C api --no-print-directory
 	@./api/api
 
-postgres_up: add_user_to_ssl_group create_run_dir
+postgres_up:
 	/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf"
 
 all: config_system create_schema
