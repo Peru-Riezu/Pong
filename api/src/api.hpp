@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/17 16:37:32                                            */
+/*   Updated:  2024/07/19 15:39:16                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@
 #define STRINGIFY(x)               (char[]){#x}
 #define TOSTRING(x)                STRINGIFY(x)
 #define API_WORKER_COUNT_STR       TOSTRING(API_WORKER_COUNT)
-#define API_SOCKET_PATH            ((char[]){"/home/superuser/pong/api_sockets/"})
+#define API_SOCKET_PATH            ((char[]){"./api_sockets/"})
 // clang-format on
 
 #define NO_EXPAND_DBNAME           0
@@ -48,8 +48,9 @@
 #define SQ_SIZE                    1024
 #define CQ_SIZE                    65536
 #define MAX_CONN_PER_WORKER        100000
-#define MEM_PER_CONN               5000 // bytes
-_Static_assert(MEM_PER_CONN >= 4096, "");
+#define MEM_PER_CONN               4480 // bytes
+_Static_assert(MEM_PER_CONN >= 4480, ""); // the minimum size of the uninx domain socket send buffer is 4608
+										  // and a message contains 128 bytes of headers
 
 #define DB_SOCK_READ_BUFF_SIZE     67108864
 #define DB_SOCK_WRITE_BUFF_SIZE    67108864

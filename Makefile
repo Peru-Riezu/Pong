@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/19 12:53:36                                             #
+#    Updated:  2024/07/19 16:14:37                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,9 @@ USER :=		$(shell echo $$USER)
 .DEFAULT_GOAL := all
 
 create_schema:
-	@psql pongdb -f ./db/create_tables.sql
+	@/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf" &> /dev/null
+	psql -h /var/run/pong_db -d pongdb -f ./db/create_tables.sql
+	@pkill postgres
 
 /usr/local/share/ca-certificates/pong.com.crt:
 	@openssl req -x509 -out ./nginx_config/pong.com.crt -keyout ./nginx_config/pong.com.key -newkey rsa:2048 -nodes \
@@ -49,6 +51,12 @@ endif
 config_system: register_test_domain 
 	@grep -Fxq "vm.overcommit_memory=1" "/etc/sysctl.conf" || (echo "vm.overcommit_memory=1" | \
 		sudo tee -a "/etc/sysctl.conf" > /dev/null && echo reboot needed)
+	@grep -Fxq "net.core.wmem_default=4608" "/etc/sysctl.conf" || (echo "net.core.wmem_default=4608" | \
+		sudo tee -a "/etc/sysctl.conf" > /dev/null && echo reboot needed)
+	@grep -Fxq "net.core.rmem_default=4608" "/etc/sysctl.conf" || (echo "net.core.rmem_default=4608" | \
+		sudo tee -a "/etc/sysctl.conf" > /dev/null && echo reboot needed)
+	@grep -Fxq "net.core.netdev_max_backlog=1024" "/etc/sysctl.conf" || (echo "net.core.netdev_max_backlog=1024" | \
+		sudo tee -a "/etc/sysctl.conf" > /dev/null && echo reboot needed)
 	@grep -Fxq "* hard data unlimited" "/etc/security/limits.conf" || \
 		(echo "* hard data unlimited" | sudo tee -a "/etc/security/limits.conf" > /dev/null && echo reboot needed)
 	@grep -Fxq "* soft data unlimited" "/etc/security/limits.conf" || \
@@ -66,13 +74,14 @@ nginx_up:
 	@sudo nginx -g 'daemon off; user $(USER);' -c /home/superuser/pong/nginx_config/nginx.conf
 
 api_up:
+	@make -C api --no-print-directory
 	@./api/api
 
 postgres_up: add_user_to_ssl_group create_run_dir
 	/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf"
 
-all: create_schema config_system create_aux_dirs
-	@mkdir api_sockets
+all: config_system create_schema
+	@mkdir api_sockets 2> /dev/null || true
 
 clean:
 	@make -C api --no-print-directory clean

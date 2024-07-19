@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/05 23:46:55                                            */
-/*   Updated:  2024/07/19 14:19:49                                            */
+/*   Updated:  2024/07/19 14:47:56                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,7 +209,7 @@ static struct iovec get_shared_buffer(int worker_id)
 }
 static c_overseer *get_overseers(PGconn *dbconnection, struct io_uring *ring, void *shared_buffer, int worker_id)
 {
-	c_overseer *const  overseers = static_cast<c_overseer *>(calloc(API_WORKER_COUNT + 2, sizeof(c_overseer)));
+	c_overseer *const  overseers = static_cast<c_overseer *>(calloc(API_WORKER_COUNT + 1, sizeof(c_overseer)));
 
 	if (overseers == nullptr)
 	{
@@ -217,30 +217,13 @@ static c_overseer *get_overseers(PGconn *dbconnection, struct io_uring *ring, vo
 		perror(": failed to allocate the array of overseers");
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-//	overseers[0].set_new_state(overseer_state::dbconnection::waiting_to_read_from_db);
-	overseers[0].set_relative_index(0);
-//	overseers[1].set_new_state(overseer_state::dbconnection::waiting_to_read_from_db);
-	overseers[1].set_relative_index(1);
-	c_overseer::set_listenning_socket_overseer(&overseers[1]);
-	c_overseer::set_dbconnection_overseer(&overseers[0]);
-	c_overseer::set_dbconnection(dbconnection);
-	c_overseer::set_ring(ring);
-	c_overseer::set_aviable_head(&overseers[2]);
-	c_overseer::set_aviable_tail(&overseers[API_WORKER_COUNT - 1]);
-	for (size_t i = 0; i < API_WORKER_COUNT; i++)
-	{
-		overseers[i + 2].set_memory_shared_whit_ring(static_cast<uint8_t *>(shared_buffer) + (i * MEM_PER_CONN));
-		overseers[i + 2].set_relative_index(static_cast<int>(i) + 2);
-		overseers[i + 2].set_next_avialbe(&overseers[i + 1 + 2]);
-	}
-	overseers[API_WORKER_COUNT - 1 + 2].set_next_avialbe(nullptr);
-	return (overseers);
+	return (overseers)
 }
 
 int main(void)
 {
 	int                worker_id = 1;
-	PGconn *const      dbconnection = connect_to_database(worker_id);                                    // may exit
+	PGconn *const      dbconnection_pool = connect_to_database(worker_id);                                    // may exit
 	int const          dbconnection_fd = enlarge_connection_buffers_and_get_fd(dbconnection, worker_id); // may exit
 	int const          listening_sock_fd = get_listening_socket(worker_id);                              // may exit
 	const struct iovec shared_buffer = get_shared_buffer(worker_id);                                     // may exit
