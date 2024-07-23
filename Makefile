@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/20 01:55:45                                             #
+#    Updated:  2024/07/23 15:56:50                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,11 +22,11 @@ USER :=		$(shell echo $$USER)
 .DEFAULT_GOAL := all
 
 create_schema:
-	@/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf" \
+	@sudo -u pong_role /usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf" \
 		&> /dev/null &
 	@sleep 1
-	@psql -h /var/run/pong_db -d pongdb -f ./db/create_tables.sql
-	@pkill postgres
+	@sudo -u pong_role psql -h /var/run/pong_db -d pongdb -f ./db/create_tables.sql
+	@sudo pkill postgres
 
 /usr/local/share/ca-certificates/pong.com.crt:
 	@openssl req -x509 -out ./nginx_config/pong.com.crt -keyout ./nginx_config/pong.com.key -newkey rsa:2048 -nodes \
@@ -40,27 +40,30 @@ register_test_domain: /usr/local/share/ca-certificates/pong.com.crt
 
 create_run_dir:
 	-@sudo mkdir /var/run/pong_db &> /dev/null || true
-	-@sudo chown $(USER) /var/run/pong_db &> /dev/null || true
-	-@mkdir ./db/config/conf.d/ &> /dev/null || true
-	-@mkdir ./db/data/main/pg_notify/ &> /dev/null || true
-	-@mkdir ./db/data/main/pg_replslot/ &> /dev/null || true
-	-@mkdir ./db/data/main/pg_tblspc/ &> /dev/null || true
-	-@mkdir ./db/data/main/pg_twophase/ &> /dev/null || true
-	-@mkdir ./db/data/main/pg_commit_ts/ &> /dev/null || true
-	-@mkdir ./db/data/main/pg_snapshots/ &> /dev/null || true
-	-@mkdir -p ./db/data/main/pg_logical/snapshots/ &> /dev/null || true
-	-@mkdir -p ./db/data/main/pg_logical/mappings/ &> /dev/null || true
+	-@sudo chown pong_role /var/run/pong_db &> /dev/null || true
+	-@sudo -u pong_role mkdir ./db/config/conf.d/ &> /dev/null || true
+	-@sudo -u pong_role mkdir ./db/data/main/pg_notify/ &> /dev/null || true
+	-@sudo -u pong_role mkdir ./db/data/main/pg_replslot/ &> /dev/null || true
+	-@sudo -u pong_role mkdir ./db/data/main/pg_tblspc/ &> /dev/null || true
+	-@sudo -u pong_role mkdir ./db/data/main/pg_twophase/ &> /dev/null || true
+	-@sudo -u pong_role mkdir ./db/data/main/pg_commit_ts/ &> /dev/null || true
+	-@sudo -u pong_role mkdir ./db/data/main/pg_snapshots/ &> /dev/null || true
+	-@sudo -u pong_role mkdir -p ./db/data/main/pg_logical/snapshots/ &> /dev/null || true
+	-@sudo -u pong_role mkdir -p ./db/data/main/pg_logical/mappings/ &> /dev/null || true
 
-ifeq ($(filter ssl-cert, $(shell groups $(USER))),)
+ifeq ($(filter ssl-cert, $(shell groups pong_role)),)
 add_user_to_ssl_group:
-		@sudo usermod -a -G ssl-cert $(USER)
-		@echo reboot needed
+	@sudo useradd pong_role
+	@sudo usermod -a -G ssl-cert pong_role
+	@sudo usermod -a -G $(USER) pong_role
+	@echo reboot needed
 else
 add_user_to_ssl_group:
 endif
 
 set_permissions:
-	@chmod 700 db/data/main
+	@sudo chown -R pong_role db/data/main
+	@sudo -u pong_role chmod 700 db/data/main
 
 config_system: register_test_domain add_user_to_ssl_group create_run_dir set_permissions
 	@grep -Fxq "vm.overcommit_memory=1" "/etc/sysctl.conf" || (echo "vm.overcommit_memory=1" | \
@@ -85,7 +88,7 @@ config_system: register_test_domain add_user_to_ssl_group create_run_dir set_per
 		(echo "* soft memlock unlimited" | sudo tee -a "/etc/security/limits.conf" > /dev/null && echo reboot needed)
 
 nginx_up:
-	@sudo nginx -g 'daemon off; user $(USER);' -c /home/superuser/pong/nginx_config/nginx.conf
+	@sudo nginx -g 'daemon off; user pong_role;' -c /home/superuser/pong/nginx_config/nginx.conf
 
 api_up:
 	@make -C api --no-print-directory
