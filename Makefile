@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/23 15:56:50                                             #
+#    Updated:  2024/07/23 16:01:58                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,6 +56,7 @@ add_user_to_ssl_group:
 	@sudo useradd pong_role
 	@sudo usermod -a -G ssl-cert pong_role
 	@sudo usermod -a -G $(USER) pong_role
+	@sudo usermod -a -G pong_role $(USER)
 	@echo reboot needed
 else
 add_user_to_ssl_group:
@@ -114,6 +115,8 @@ pull:
 	@git pull
 
 push: fclean
+	@sudo -u pong_role chmod -R 750 db/data/main
 	@git add .
 	@git commit
 	@git push
+	@sudo -u pong_role chmod -R 700 db/data/main
