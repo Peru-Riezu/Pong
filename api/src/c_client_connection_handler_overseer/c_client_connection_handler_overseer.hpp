@@ -43,8 +43,8 @@ inline c_client_connection_handlers_overseer *g_client_connection_handlers_overs
 class c_client_connection_handlers_overseer
 {
 	private:
-		c_client_connection_handler  *aviable_head;
-		c_client_connection_handler  *aviable_tail;
+		c_client_connection_handler *aviable_head;
+		c_client_connection_handler *aviable_tail;
 
 	public:
 		c_client_connection_handlers_overseer(void);

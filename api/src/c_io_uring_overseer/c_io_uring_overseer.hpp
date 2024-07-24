@@ -32,8 +32,8 @@ class c_listenning_socket_overseer;
 class c_dbconnection_pool_overseer;
 class c_client_connection_handlers_overseer;
 
-extern c_listenning_socket_overseer *g_listenning_socket_overseer;
-extern c_dbconnection_pool_overseer *g_dbconnection_pool_overseer;
+extern c_listenning_socket_overseer          *g_listenning_socket_overseer;
+extern c_dbconnection_pool_overseer          *g_dbconnection_pool_overseer;
 extern c_client_connection_handlers_overseer *g_client_connection_handlers_overseer;
 
 class c_io_uring_overseer;

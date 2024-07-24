@@ -40,7 +40,7 @@ extern c_client_connection_handlers_overseer *g_client_connection_handlers_overs
 class c_client_connection_handler
 {
 	private:
-		typedef int t_e_handler_state;
+		typedef int                  t_e_handler_state;
 
 		t_e_handler_state            current_state;
 		c_client_connection_handler *next_aviable;
@@ -49,14 +49,14 @@ class c_client_connection_handler
 
 	public:
 		c_client_connection_handler *get_next_aviable(void) const;
-		int get_index(void) const;
+		int                          get_index(void) const;
 
-		void set_next_aviable(c_client_connection_handler *next_aviable_exemplum);
-		void set_index(int index);
-		void set_memory_shared_whit_the_ring(int index);
-		void notify_connection_assigned(void);
-		void notify_io_commpletion(struct io_uring_cqe *completion);
-		void notify_query_commpletion(void *completion);
+		void                         set_next_aviable(c_client_connection_handler *next_aviable_exemplum);
+		void                         set_index(int index);
+		void                         set_memory_shared_whit_the_ring(int index);
+		void                         notify_connection_assigned(void);
+		void                         notify_io_commpletion(struct io_uring_cqe *completion);
+		void                         notify_query_commpletion(void *completion);
 
 	private: // all posible client_connection_handler states in a enum
 		struct e_handler_state
