@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/19 19:19:05                                            */
+/*   Updated:  2024/07/25 00:36:46                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@
 _Static_assert(MEM_PER_CONN >= 4480, ""); // the minimum size of the uninx domain socket send buffer is 4608
 										  // and a message contains 128 bytes of headers
 
-#define DB_SOCK_READ_BUFF_SIZE  67108864
-#define DB_SOCK_WRITE_BUFF_SIZE 67108864
+#define DBCONN_POOL_SIZE 3334
 
 #pragma GCC diagnostic pop
