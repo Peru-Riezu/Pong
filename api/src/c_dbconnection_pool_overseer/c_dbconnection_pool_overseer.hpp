@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 23:53:09                                            */
-/*   Updated:  2024/07/25 01:07:37                                            */
+/*   Updated:  2024/07/27 01:52:28                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,9 @@ class c_dbconnection_pool_overseer
 		c_dbconnection_pool_overseer(void);
 		~c_dbconnection_pool_overseer(void);
 
-		void notify_ring_commpletion(struct io_uring_cqe *completion);
+		void notify_ring_commpletion(struct io_uring_cqe *cqe);
 		void make_request(char const *statement_name, char const **params, int param_number, int issuer_index);
-		void notify_query_commpletion(void *completion, int issuer_index);
+		void notify_query_commpletion(void *result, int issuer_index);
 		void send_retry_request_messages(void);
 };
 

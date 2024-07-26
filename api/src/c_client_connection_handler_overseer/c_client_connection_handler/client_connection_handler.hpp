@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 16:25:15                                            */
-/*   Updated:  2024/07/25 00:46:39                                            */
+/*   Updated:  2024/07/27 01:47:33                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,22 +52,31 @@ class c_client_connection_handler
 		int                          get_index(void) const;
 
 		void                         set_next_aviable(c_client_connection_handler *next_aviable_exemplum);
-		void                         set_index(int index);
-		void                         set_memory_shared_whit_the_ring(int index);
+		void                         set_index(int index_exemplum);
+		void                         set_memory_shared_whit_the_ring(uint8_t *memory_shared_whit_the_ring_exemplum);
 		void                         notify_connection_assigned(void);
-		void                         notify_io_commpletion(struct io_uring_cqe *completion);
-		void                         notify_query_commpletion(void *completion);
+		void                         notify_io_commpletion(struct io_uring_cqe *cqe);
+		void                         notify_query_commpletion(void *result);
+		void                         parse_headers_and_get_new_state(void);
 
 	private: // all posible client_connection_handler states in a enum
 		struct e_handler_state
 		{
+				enum e_sub_state : t_e_handler_state
+				{
+					invalid_state,
+					waiting_for_connection,
+					waiting_for_headers,
+					waiting_for_close
+				};
+
 				struct post_endpoint
 				{
 						struct set_session_token
 						{
 								enum e_sub_state : t_e_handler_state
 								{
-									parsing,
+									parsing = invalid_state,
 									waiting_for_db_response,
 									sending_response
 								};

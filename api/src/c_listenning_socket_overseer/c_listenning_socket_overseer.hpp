@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 23:38:19                                            */
-/*   Updated:  2024/07/25 00:14:32                                            */
+/*   Updated:  2024/07/27 01:54:39                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ class c_listenning_socket_overseer
 		~c_listenning_socket_overseer(void);
 
 		void inform_connection_handler_freed(void);
-		void notify_commpletion(struct io_uring_cqe *completion);
+		void notify_commpletion(struct io_uring_cqe *cqe);
 };
 
 #pragma GCC diagnostic pop

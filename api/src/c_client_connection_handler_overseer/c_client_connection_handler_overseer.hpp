@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/14 12:28:12                                            */
-/*   Updated:  2024/07/25 00:41:11                                            */
+/*   Updated:  2024/07/27 01:48:42                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ class c_client_connection_handlers_overseer
 		~c_client_connection_handlers_overseer(void);
 
 		void notify_handler_free(c_client_connection_handler *handler);
-		void notify_commpletion(struct io_uring_cqe *completion) const;
+		void notify_commpletion(struct io_uring_cqe *cqe) const;
 		int  get_next_connection_handler_index(void) const;
 		void activate_handler_order(int index);
 };
