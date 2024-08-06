@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/07/27 01:46:15                                            */
+/*   Updated:  2024/08/03 02:15:08                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,5 +52,7 @@ _Static_assert(MEM_PER_CONN >= 4480, ""); // the minimum size of the uninx domai
 										  // and a message contains 128 bytes of headers
 
 #define DBCONN_POOL_SIZE 3334
+
+inline int             worker_id = 1;
 
 #pragma GCC diagnostic pop

@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 23:53:09                                            */
-/*   Updated:  2024/07/27 01:52:28                                            */
+/*   Updated:  2024/08/03 22:47:14                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,11 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-class c_dbconnection;
 class c_client_connection_handlers_overseer;
 class c_io_uring_overseer;
 class c_listenning_socket_overseer;
 
 extern c_client_connection_handlers_overseer *g_client_connection_handlers_overseer;
-extern c_io_uring_overseer                   *g_io_uring_overseer;
 extern c_listenning_socket_overseer          *g_listenning_socket_overseer;
 
 class c_dbconnection_pool_overseer;
@@ -45,6 +43,8 @@ inline c_dbconnection_pool_overseer *g_dbconnection_pool_overseer = nullptr;
 class c_dbconnection_pool_overseer
 {
 	private:
+		class c_dbconnection;
+
 		c_dbconnection *aviable_head;
 		c_dbconnection *aviable_tail;
 		int             aviable_request_slot_count = DBCONN_POOL_SIZE;

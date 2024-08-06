@@ -6,12 +6,12 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/13 19:45:54                                            */
-/*   Updated:  2024/07/27 01:40:35                                            */
+/*   Updated:  2024/08/06 01:26:42                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../c_token/c_token.hpp"
-#include "./client_connection_handler.hpp"
+#include "./c_client_connection_handler.hpp"
 #include <cctype>
 #include <map>
 
@@ -77,7 +77,7 @@ static c_token get_endpoint_token(char const *buffer)
 	return (c_token(beginning, &buffer[i - 1]));
 }
 
-void c_client_connection_handler::parse_headers_and_get_new_state(void)
+void c_client_connection_handlers_overseer::c_client_connection_handler::parse_headers_and_get_new_state(void)
 {
 	// clang-format off
 	static std::map<std::pair<c_token, c_token>, t_e_handler_state> const endpoint_to_state =

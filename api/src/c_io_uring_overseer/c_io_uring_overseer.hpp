@@ -6,11 +6,15 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 23:16:50                                            */
-/*   Updated:  2024/07/25 00:14:21                                            */
+/*   Updated:  2024/08/03 19:34:25                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <cstdint>
+#include <liburing.h>
+#include <liburing/io_uring.h>
 
 ;
 #pragma GCC diagnostic push
@@ -42,14 +46,18 @@ inline c_io_uring_overseer *g_io_uring_overseer = nullptr;
 class c_io_uring_overseer
 {
 	private:
-		struct io_uring *ring;
+		struct io_uring ring;
+		uint8_t        *shared_buffer;
 
 	public:
 		c_io_uring_overseer(void);
 		~c_io_uring_overseer(void);
 
-		void make_request(struct io_usring_sqe *sqe);
-		void start_loop(void);
+		void     make_request(struct io_usring_sqe *sqe);
+		void     start_loop(void);
+		void     register_file(int fd, unsigned int pos);
+
+		uint8_t *get_shared_buffer(void);
 };
 
 #pragma GCC diagnostic pop

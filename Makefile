@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/24 01:15:25                                             #
+#    Updated:  2024/08/06 03:44:42                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,8 +22,8 @@ USER :=		$(shell echo $$USER)
 .DEFAULT_GOAL := all
 
 create_schema:
-	@sudo -u pong_role /usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf" \
-		&> /dev/null &
+	@sudo -u pong_role /usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" \
+		"config_file=./db/config/postgresql.conf" &> /dev/null &
 	@sleep 1
 	@sudo -u pong_role psql -h /var/run/pong_db -d pongdb -f ./db/create_tables.sql
 	@sudo pkill postgres
@@ -89,21 +89,26 @@ config_system: register_test_domain add_user_to_ssl_group create_run_dir set_per
 		(echo "* soft memlock unlimited" | sudo tee -a "/etc/security/limits.conf" > /dev/null && echo reboot needed)
 
 nginx_up:
-	@sudo nginx -g 'daemon off; user pong_role;' -c /home/superuser/pong/nginx_config/nginx.conf
+	@sed 's/\$${USER}/$(USER)/g' < /home/$(USER)/pong/nginx_config/nginx.conf > .nginx.conf
+	@sudo nginx -g 'daemon off;' -c /home/$(USER)/pong/.nginx.conf
+	@rm .nginx.conf
 
 api_up:
 	@make -C api --no-print-directory
-	@./api/api
+	@sudo -u pong_role ./api/api
 
 postgres_up:
-	/usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" "config_file=./db/config/postgresql.conf"
+	@sudo -u pong_role /usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" \
+		"config_file=./db/config/postgresql.conf"
 
 all: config_system create_schema
 	@mkdir api_sockets 2> /dev/null || true
+	@chown pong_role api_sockets 2> /dev/null || true
 
 clean:
 	@make -C api --no-print-directory clean
-	@rm -rf api_sockets/*
+	@sudo rm -rf api_sockets/*
+	@rm -rf .nginx.conf
 
 fclean: clean
 	@make -C api --no-print-directory fclean

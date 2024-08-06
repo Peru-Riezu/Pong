@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/14 12:28:12                                            */
-/*   Updated:  2024/07/27 01:48:42                                            */
+/*   Updated:  2024/08/03 21:21:20                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@
 class c_listenning_socket_overseer;
 class c_dbconnection_pool_overseer;
 class c_io_uring_overseer;
-class c_client_connection_handler;
 
 extern c_listenning_socket_overseer *g_listenning_socket_overseer;
 extern c_dbconnection_pool_overseer *g_dbconnection_pool_overseer;
@@ -43,6 +42,8 @@ inline c_client_connection_handlers_overseer *g_client_connection_handlers_overs
 class c_client_connection_handlers_overseer
 {
 	private:
+		class c_client_connection_handler;
+
 		c_client_connection_handler *aviable_head;
 		c_client_connection_handler *aviable_tail;
 

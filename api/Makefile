@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/07/11 18:17:21                                             #
+#    Updated:  2024/08/06 03:31:32                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -93,17 +93,17 @@ $(OBJ_PATH)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(DEP_PATH)/%.d: %.cpp | $(NEW_DIRS)
-	@rm -f $(DEP_PATH)/$@; \
+	@rm -f $@; \
 		$(CXX) $(CXXFLAGS) -M $< > $@.tmp; \
-		sed 's,$(notdir $*).o[ :]*,$(OBJ_PATH)/$(subst $(DEP_PATH_MAKE),,$(basename $@).o) $@ : ,g' \
-	   	< $@.tmp > $@; \
+		sed '1 s,$(notdir $*).o[ :]*,$(OBJ_PATH)/$(subst $(DEP_PATH_MAKE),,$(basename $@).o) $@ : ,g' \
+		< $@.tmp > $@; \
 		rm -f $@.tmp
 
 $(DEP_PATH)/%.d: %.c | $(NEW_DIRS)
-	@rm -f $(DEP_PATH)/$@; \
+	@rm -f $@; \
 		$(CC) $(CFLAGS) -M $< > $@.tmp; \
-		sed 's,$(notdir $*).o[ :]*,$(OBJ_PATH)/$(subst $(DEP_PATH_MAKE),,$(basename $@).o) $@ : ,g' \
-	   	< $@.tmp > $@; \
+		sed '1 s,$(notdir $*).o[ :]*,$(OBJ_PATH)/$(subst $(DEP_PATH_MAKE),,$(basename $@).o) $@ : ,g' \
+		< $@.tmp > $@; \
 		rm -f $@.tmp
 
 $(NAME): $(OBJ)

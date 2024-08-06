@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/09 17:27:36                                            */
-/*   Updated:  2024/07/15 10:17:25                                            */
+/*   Updated:  2024/08/06 03:42:50                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,9 @@
 class c_prepare_pg_statement
 {
 	private:
-		static inline std::vector<char const *> statement_names;
-		static inline std::vector<char const *> statements;
-		static inline std::vector<int>          param_numbers;
+		static inline std::vector<char const *> statement_names = {"noop"};
+		static inline std::vector<char const *> statements = {""};
+		static inline std::vector<int>          param_numbers = {0};
 
 	public:
 		c_prepare_pg_statement(char const *statement_name, char const *statement, int param_number)
@@ -46,6 +46,15 @@ class c_prepare_pg_statement
 			statement_names.push_back(statement_name);
 			statements.push_back(statement);
 			param_numbers.push_back(param_number);
+		}
+
+		static void c_prepare_pg_statement_destructor(void)
+		{
+			statements.clear();
+			param_numbers.clear();
+			statement_names.shrink_to_fit();
+			statements.shrink_to_fit();
+			param_numbers.shrink_to_fit();
 		}
 
 		static PGresult *get_result_of_statement_preparaitions(PGconn *conn)
@@ -56,12 +65,6 @@ class c_prepare_pg_statement
 				i++;
 				if (PQresultStatus(res) != PGRES_COMMAND_OK || i == statement_names.size())
 				{
-					statement_names.clear();
-					statements.clear();
-					param_numbers.clear();
-					statement_names.shrink_to_fit();
-					statements.shrink_to_fit();
-					param_numbers.shrink_to_fit();
 					return (res);
 				}
 				PQclear(res);
