@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/14 12:28:12                                            */
-/*   Updated:  2024/08/03 21:21:20                                            */
+/*   Updated:  2024/08/06 04:42:26                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-class c_listenning_socket_overseer;
+class c_listening_socket_overseer;
 class c_dbconnection_pool_overseer;
 class c_io_uring_overseer;
 
-extern c_listenning_socket_overseer *g_listenning_socket_overseer;
+extern c_listening_socket_overseer  *g_listenning_socket_overseer;
 extern c_dbconnection_pool_overseer *g_dbconnection_pool_overseer;
 extern c_io_uring_overseer          *g_io_uring_overseer;
 
@@ -44,15 +44,15 @@ class c_client_connection_handlers_overseer
 	private:
 		class c_client_connection_handler;
 
-		c_client_connection_handler *aviable_head;
-		c_client_connection_handler *aviable_tail;
+		c_client_connection_handler *available_head;
+		c_client_connection_handler *available_tail;
 
 	public:
 		c_client_connection_handlers_overseer(void);
 		~c_client_connection_handlers_overseer(void);
 
 		void notify_handler_free(c_client_connection_handler *handler);
-		void notify_commpletion(struct io_uring_cqe *cqe) const;
+		void notify_completion(struct io_uring_cqe *cqe) const;
 		int  get_next_connection_handler_index(void) const;
 		void activate_handler_order(int index);
 };

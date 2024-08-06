@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 16:25:15                                            */
-/*   Updated:  2024/08/03 21:22:01                                            */
+/*   Updated:  2024/08/06 04:54:48                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,22 +39,22 @@ class c_client_connection_handlers_overseer::c_client_connection_handler
 	private:
 		typedef int                  t_e_handler_state;
 
-		c_client_connection_handler *next_aviable;
+		c_client_connection_handler *next_available;
 		t_e_handler_state            current_state;
 		int                          index;
-		uint8_t                     *memory_shared_whit_the_ring;
+		uint8_t                     *memory_shared_with_the_ring;
 
 	public:
-		c_client_connection_handler *get_next_aviable(void) const;
+		c_client_connection_handler *get_next_available(void) const;
 		int                          get_index(void) const;
 
-		void                         set_next_aviable(c_client_connection_handler *next_aviable_exemplum);
+		void                         set_next_available(c_client_connection_handler *next_available_exemplum);
 		void                         set_index(int index_exemplum);
-		void                         set_memory_shared_whit_the_ring(uint8_t *memory_shared_whit_the_ring_exemplum);
+		void                         set_memory_shared_with_the_ring(uint8_t *memory_shared_with_the_ring_exemplum);
 		void                         set_current_state(t_e_handler_state current_state_exemplum);
 		void                         notify_connection_assigned(void);
-		void                         notify_io_commpletion(struct io_uring_cqe *cqe);
-		void                         notify_query_commpletion(void *result);
+		void                         notify_io_completion(struct io_uring_cqe *cqe);
+		void                         notify_query_completion(void *result);
 		void                         parse_headers_and_get_new_state(void);
 
 		// all posible client_connection_handler states in a enum

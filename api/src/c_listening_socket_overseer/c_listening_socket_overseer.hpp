@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                                            */
-/*   Filename: c_listenning_socket_overseer.hpp                               */
+/*   Filename: c_listening_socket_overseer.hpp                                */
 /*   Author:   Peru Riezu <riezumunozperu@gmail.com>                          */
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 23:38:19                                            */
-/*   Updated:  2024/08/03 03:50:11                                            */
+/*   Updated:  2024/08/06 04:42:26                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,20 @@ extern c_dbconnection_pool_overseer          *g_dbconnection_pool_overseer;
 extern c_client_connection_handlers_overseer *g_client_connection_handlers_overseer;
 extern c_io_uring_overseer                   *g_io_uring_overseer;
 
-class c_listenning_socket_overseer;
-inline c_listenning_socket_overseer *g_listenning_socket_overseer = nullptr;
+class c_listening_socket_overseer;
+inline c_listening_socket_overseer *g_listening_socket_overseer = nullptr;
 
-class c_listenning_socket_overseer
+class c_listening_socket_overseer
 {
 	private:
-		int aviable_handler_count = MAX_CONN_PER_WORKER;
+		int available_handler_count = MAX_CONN_PER_WORKER;
 
 	public:
-		c_listenning_socket_overseer(void); // io_uring_overseer must be constructed before this object is constructed
-		~c_listenning_socket_overseer(void);
+		c_listening_socket_overseer(void); // io_uring_overseer must be constructed before this object is constructed
+		~c_listening_socket_overseer(void);
 
 		void inform_connection_handler_freed(void);
-		void notify_commpletion(struct io_uring_cqe *cqe);
+		void notify_completion(struct io_uring_cqe *cqe);
 };
 
 #pragma GCC diagnostic pop

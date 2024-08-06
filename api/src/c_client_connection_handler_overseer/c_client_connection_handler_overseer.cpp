@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/03 18:46:47                                            */
-/*   Updated:  2024/08/06 01:51:02                                            */
+/*   Updated:  2024/08/06 04:53:37                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,24 +37,24 @@
 
 c_client_connection_handlers_overseer::c_client_connection_handlers_overseer(void)
 {
-	aviable_head = reinterpret_cast<c_client_connection_handler *>(
+	available_head = reinterpret_cast<c_client_connection_handler *>(
 		calloc(MAX_CONN_PER_WORKER, sizeof(c_client_connection_handler)));
-	if (aviable_head == nullptr)
+	if (available_head == nullptr)
 	{
-		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" + "SYSLOG_IDENTIFIER=" +
-						 c_worker_id_to_text::get_name_from_id(worker_id) +
+		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" +
+						 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
 						 "\nMESSAGE=" + "failed to allocate the connection handlers: " + internal_strerror(errno);
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
-	aviable_tail = aviable_head + MAX_CONN_PER_WORKER - 1;
+	available_tail = available_head + MAX_CONN_PER_WORKER - 1;
 	for (size_t i = 0; i < MAX_CONN_PER_WORKER; i++)
 	{
-		aviable_head[i].set_index(static_cast<int>(i));
-		aviable_head[i].set_next_aviable(&aviable_head[i + 1]);
-		aviable_head[i].set_memory_shared_whit_the_ring(g_io_uring_overseer->get_shared_buffer() + i * MEM_PER_CONN);
-		aviable_head[i].set_current_state(c_client_connection_handler::e_handler_state::waiting_for_connection);
+		available_head[i].set_index(static_cast<int>(i));
+		available_head[i].set_next_available(&available_head[i + 1]);
+		available_head[i].set_memory_shared_with_the_ring(g_io_uring_overseer->get_shared_buffer() + i * MEM_PER_CONN);
+		available_head[i].set_current_state(c_client_connection_handler::e_handler_state::waiting_for_connection);
 	}
-	aviable_tail->set_next_aviable(nullptr);
+	available_tail->set_next_available(nullptr);
 	g_client_connection_handlers_overseer = this;
 }
 

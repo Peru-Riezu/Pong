@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 23:53:09                                            */
-/*   Updated:  2024/08/03 22:47:14                                            */
+/*   Updated:  2024/08/06 04:42:26                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,10 @@
 
 class c_client_connection_handlers_overseer;
 class c_io_uring_overseer;
-class c_listenning_socket_overseer;
+class c_listening_socket_overseer;
 
 extern c_client_connection_handlers_overseer *g_client_connection_handlers_overseer;
-extern c_listenning_socket_overseer          *g_listenning_socket_overseer;
+extern c_listening_socket_overseer           *g_listenning_socket_overseer;
 
 class c_dbconnection_pool_overseer;
 inline c_dbconnection_pool_overseer *g_dbconnection_pool_overseer = nullptr;
@@ -45,9 +45,9 @@ class c_dbconnection_pool_overseer
 	private:
 		class c_dbconnection;
 
-		c_dbconnection *aviable_head;
-		c_dbconnection *aviable_tail;
-		int             aviable_request_slot_count = DBCONN_POOL_SIZE;
+		c_dbconnection *available_head;
+		c_dbconnection *available_tail;
+		int             available_request_slot_count = DBCONN_POOL_SIZE;
 		int             must_retry_request_number = 0;
 		int             must_retry_index[MAX_CONN_PER_WORKER];
 
@@ -55,9 +55,9 @@ class c_dbconnection_pool_overseer
 		c_dbconnection_pool_overseer(void);
 		~c_dbconnection_pool_overseer(void);
 
-		void notify_ring_commpletion(struct io_uring_cqe *cqe);
+		void notify_ring_completion(struct io_uring_cqe *cqe);
 		void make_request(char const *statement_name, char const **params, int param_number, int issuer_index);
-		void notify_query_commpletion(void *result, int issuer_index);
+		void notify_query_completion(void *result, int issuer_index);
 		void send_retry_request_messages(void);
 };
 

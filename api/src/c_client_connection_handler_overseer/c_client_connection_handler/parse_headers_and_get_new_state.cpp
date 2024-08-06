@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/13 19:45:54                                            */
-/*   Updated:  2024/08/06 01:26:42                                            */
+/*   Updated:  2024/08/06 04:53:38                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,7 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::parse_h
 			e_handler_state::delete_endpoint::leave_group_chat::parsing}
 	 };
 	// clang-format on
-	c_token const method = get_method_token(reinterpret_cast<char const *>(memory_shared_whit_the_ring));
+	c_token const method = get_method_token(reinterpret_cast<char const *>(memory_shared_with_the_ring));
 	c_token const endpoint = get_endpoint_token(method.get_end() + 1);
 	std::map<std::pair<c_token, c_token>, t_e_handler_state>::const_iterator it =
 		endpoint_to_state.find(std::pair<c_token, c_token>(method, endpoint));

@@ -50,8 +50,8 @@ c_io_uring_overseer::c_io_uring_overseer(void)
 
 	if (shared_buffers.iov_base == nullptr)
 	{
-		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" + "SYSLOG_IDENTIFIER=" +
-						 c_worker_id_to_text::get_name_from_id(worker_id) +
+		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" +
+						 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
 						 "\nMESSAGE=" + "failed to allocate the shared buffer: " + internal_strerror(errno);
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
@@ -59,35 +59,33 @@ c_io_uring_overseer::c_io_uring_overseer(void)
 	res = io_uring_queue_init_params(SQ_SIZE, &ring, &params);
 	if (res < 0)
 	{
-		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" + "SYSLOG_IDENTIFIER=" +
-						 c_worker_id_to_text::get_name_from_id(worker_id) +
+		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" +
+						 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
 						 "\nMESSAGE=" + "failed to create io uring: " + internal_strerror(-res);
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	res = io_uring_register_ring_fd(&ring);
 	if (res < 0)
 	{
-		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" + "SYSLOG_IDENTIFIER=" +
-						 c_worker_id_to_text::get_name_from_id(worker_id) +
+		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" +
+						 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
 						 "\nMESSAGE=" + "failed to register io uring fd in io uring: " + internal_strerror(-res);
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	res = io_uring_register_files_sparse(&ring, MAX_CONN_PER_WORKER);
 	if (res < 0)
 	{
-		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" + "SYSLOG_IDENTIFIER=" +
-						 c_worker_id_to_text::get_name_from_id(worker_id) +
+		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" +
+						 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
 						 "\nMESSAGE=" + "failed to register fd table io uring: " + internal_strerror(-res);
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	res = io_uring_register_buffers(&ring, &shared_buffers, 1);
 	if (res < 0)
 	{
-		std::cerr << std::string("PRIORITY=3\n")
-				  + "SYSLOG_FACILITY=3\n"
-				  + "SYSLOG_IDENTIFIER="
-				  + c_worker_id_to_text::get_name_from_id(worker_id) + "\nMESSAGE="
-				  + "failed to register the shared buffers in io uring: " + internal_strerror(-res);
+		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" +
+						 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
+						 "\nMESSAGE=" + "failed to register the shared buffers in io uring: " + internal_strerror(-res);
 		exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
 	}
 	g_io_uring_overseer = this;

@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/25 00:16:54                                            */
-/*   Updated:  2024/08/04 02:38:10                                            */
+/*   Updated:  2024/08/06 04:48:43                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,23 +40,23 @@ class c_dbconnection_pool_overseer::c_dbconnection
 	private:
 		typedef int            t_e_dbconnection_state;
 
-		c_dbconnection        *next_aviable;
+		c_dbconnection        *next_available;
 		PGconn                *dbconnection;
 		unsigned int           index;
-		int                    reques_issuer_index;
+		int                    request_issuer_index;
 		t_e_dbconnection_state current_state;
 
 	public:
-		c_dbconnection *get_next_aviable(void) const;
+		c_dbconnection *get_next_available(void) const;
 		int             get_index(void) const;
 		PGconn         *get_dbconnection(void) const;
 
-		void            set_next_aviable(c_dbconnection *next_aviable_exemplum);
+		void            set_next_available(c_dbconnection *next_available_exemplum);
 		void            set_dbconnection(PGconn *dbconnection_exemplum);
 		void            set_index(unsigned int index_exemplum);
 		void            set_current_state(t_e_dbconnection_state current_state_exemplum);
 		void notify_query_assigned(char const *statement_name, char const **params, int param_number, int issuer_index);
-		void notify_io_commpletion(struct io_uring_cqe *completion);
+		void notify_io_completion(struct io_uring_cqe *completion);
 
 		struct e_dbconnection_state
 		{

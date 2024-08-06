@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/09 17:27:36                                            */
-/*   Updated:  2024/08/06 03:42:50                                            */
+/*   Updated:  2024/08/06 04:51:04                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ class c_prepare_pg_statement
 			param_numbers.shrink_to_fit();
 		}
 
-		static PGresult *get_result_of_statement_preparaitions(PGconn *conn)
+		static PGresult *get_result_of_statement_preparations(PGconn *conn)
 		{
 			for (size_t i = 0; true; i++)
 			{

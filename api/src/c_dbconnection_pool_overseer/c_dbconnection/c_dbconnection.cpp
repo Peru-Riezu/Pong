@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/06 01:01:41                                            */
-/*   Updated:  2024/08/06 01:10:07                                            */
+/*   Updated:  2024/08/06 04:37:16                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-void c_dbconnection_pool_overseer::c_dbconnection::set_next_aviable(c_dbconnection *next_aviable_exemplum)
+void c_dbconnection_pool_overseer::c_dbconnection::set_next_available(c_dbconnection *next_available_exemplum)
 {
-	next_aviable = next_aviable_exemplum;
+	next_available = next_available_exemplum;
 }
 
 void c_dbconnection_pool_overseer::c_dbconnection::set_current_state(t_e_dbconnection_state current_state_exemplum)
