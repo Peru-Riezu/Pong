@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/08/03 02:15:08                                            */
+/*   Updated:  2024/08/07 04:06:37                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,10 @@
 #define MEM_PER_CONN        4480          // bytes
 _Static_assert(MEM_PER_CONN >= 4480, ""); // the minimum size of the uninx domain socket send buffer is 4608
 										  // and a message contains 128 bytes of headers
+_Static_assert(MAX_CONN_PER_WORKER > 0, "");
 
-#define DBCONN_POOL_SIZE 3334
+//#define DBCONN_POOL_SIZE 3334
+#define DBCONN_POOL_SIZE 100
 
 inline int             worker_id = 1;
 

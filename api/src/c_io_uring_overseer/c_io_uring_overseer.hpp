@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 23:16:50                                            */
-/*   Updated:  2024/08/06 04:25:38                                            */
+/*   Updated:  2024/08/06 22:31:23                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,11 @@ class c_io_uring_overseer
 		c_io_uring_overseer(void);
 		~c_io_uring_overseer(void);
 
-		void     make_request(struct io_usring_sqe *sqe);
-		void     start_loop(void);
-		void     register_file(int fd, unsigned int pos);
+		struct io_uring_sqe *get_sqe(void);
+		void                 start_loop(void) __attribute__((noreturn));
+		void                 register_file(int fd, unsigned int pos);
 
-		uint8_t *get_shared_buffer(void);
+		uint8_t             *get_shared_buffer(void);
 };
 
 #pragma GCC diagnostic pop

@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/03 22:31:54                                            */
-/*   Updated:  2024/08/06 04:50:59                                            */
+/*   Updated:  2024/08/06 17:28:09                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ c_dbconnection_pool_overseer::c_dbconnection_pool_overseer(void)
 		available_head[i].set_current_state(c_dbconnection::e_dbconnection_state::waiting_for_request);
 		available_head[i].set_dbconnection(new_dbconnection());
 		g_io_uring_overseer->register_file(PQsocket(available_head[i].get_dbconnection()), i + 1);
-		available_head[i].set_index(i);
+		available_head[i].set_index(i + 1);
 	}
 	c_prepare_pg_statement::c_prepare_pg_statement_destructor();
 	available_tail->set_next_available(nullptr);

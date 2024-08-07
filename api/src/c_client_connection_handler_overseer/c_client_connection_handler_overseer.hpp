@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/14 12:28:12                                            */
-/*   Updated:  2024/08/06 04:42:26                                            */
+/*   Updated:  2024/08/07 03:56:29                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,17 +44,18 @@ class c_client_connection_handlers_overseer
 	private:
 		class c_client_connection_handler;
 
-		c_client_connection_handler *available_head;
-		c_client_connection_handler *available_tail;
+		c_client_connection_handler *handler_array;
+		static inline c_client_connection_handler *available_head;
+		static inline c_client_connection_handler *available_tail;
 
 	public:
 		c_client_connection_handlers_overseer(void);
 		~c_client_connection_handlers_overseer(void);
 
-		void notify_handler_free(c_client_connection_handler *handler);
-		void notify_completion(struct io_uring_cqe *cqe) const;
-		int  get_next_connection_handler_index(void) const;
-		void activate_handler_order(int index);
+		void         notify_handler_free(c_client_connection_handler *handler);
+		void         notify_completion(struct io_uring_cqe *cqe);
+		void         notify_query_completion(void *result, unsigned int original_issuer_index);
+		int unsigned get_next_connection_handler_index(void) const;
 };
 
 #pragma GCC diagnostic pop

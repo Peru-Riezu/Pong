@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/03 18:46:47                                            */
-/*   Updated:  2024/08/06 04:53:37                                            */
+/*   Updated:  2024/08/06 21:20:11                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,9 @@
 
 c_client_connection_handlers_overseer::c_client_connection_handlers_overseer(void)
 {
-	available_head = reinterpret_cast<c_client_connection_handler *>(
+	handler_array = reinterpret_cast<c_client_connection_handler *>(
 		calloc(MAX_CONN_PER_WORKER, sizeof(c_client_connection_handler)));
+	available_head = handler_array;
 	if (available_head == nullptr)
 	{
 		std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" +
@@ -49,13 +50,23 @@ c_client_connection_handlers_overseer::c_client_connection_handlers_overseer(voi
 	available_tail = available_head + MAX_CONN_PER_WORKER - 1;
 	for (size_t i = 0; i < MAX_CONN_PER_WORKER; i++)
 	{
-		available_head[i].set_index(static_cast<int>(i));
+		available_head[i].set_index(static_cast<unsigned int>(i + 1 + DBCONN_POOL_SIZE));
 		available_head[i].set_next_available(&available_head[i + 1]);
 		available_head[i].set_memory_shared_with_the_ring(g_io_uring_overseer->get_shared_buffer() + i * MEM_PER_CONN);
 		available_head[i].set_current_state(c_client_connection_handler::e_handler_state::waiting_for_connection);
 	}
 	available_tail->set_next_available(nullptr);
 	g_client_connection_handlers_overseer = this;
+}
+
+unsigned int c_client_connection_handlers_overseer::get_next_connection_handler_index(void) const
+{
+	return (available_head->get_index());
+}
+
+void c_client_connection_handlers_overseer::notify_completion(struct io_uring_cqe *cqe)
+{
+	handler_array[cqe->user_data - 1 - DBCONN_POOL_SIZE].notify_io_completion(cqe);
 }
 
 c_client_connection_handlers_overseer::~c_client_connection_handlers_overseer(void)

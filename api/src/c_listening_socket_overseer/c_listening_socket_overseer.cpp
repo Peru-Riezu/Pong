@@ -6,15 +6,17 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/03 03:49:19                                            */
-/*   Updated:  2024/08/06 04:27:24                                            */
+/*   Updated:  2024/08/06 22:33:19                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "c_listening_socket_overseer.hpp"
+#include "../c_client_connection_handler_overseer/c_client_connection_handler_overseer.hpp"
 #include "../c_io_uring_overseer/c_io_uring_overseer.hpp"
 #include "../c_worker_id_to_text.hpp"
 #include "../internal_strerror.hpp"
 #include <asm-generic/socket.h>
+#include <cassert>
 #include <iostream>
 #include <limits.h>
 #include <sys/socket.h>
@@ -70,6 +72,37 @@ c_listening_socket_overseer::c_listening_socket_overseer(void)
 	g_io_uring_overseer->register_file(listening_sock, 0);
 	close(listening_sock);
 	g_listening_socket_overseer = this;
+}
+
+void c_listening_socket_overseer::notify_completion(struct io_uring_cqe *cqe)
+{
+	struct io_uring_sqe *sqe;
+
+	if (cqe->res < 0)
+	{
+		std::cerr << std::string("PRIORITY=4\n") + "SYSLOG_FACILITY=3\n" +
+						 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
+						 "\nMESSAGE=accept failed: " + " " + internal_strerror(-cqe->res);
+		sqe = g_io_uring_overseer->get_sqe();
+		assert(sqe != nullptr);
+		io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
+							g_client_connection_handlers_overseer->get_next_connection_handler_index());
+		sqe->flags |= IOSQE_FIXED_FILE;
+		sqe->user_data = 0;
+		return;
+	}
+	available_handler_count--;
+	cqe->user_data = g_client_connection_handlers_overseer->get_next_connection_handler_index();
+	g_client_connection_handlers_overseer->notify_completion(cqe);
+	if (available_handler_count > 0)
+	{
+		sqe = g_io_uring_overseer->get_sqe();
+		assert(sqe != nullptr);
+		io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
+							g_client_connection_handlers_overseer->get_next_connection_handler_index());
+		sqe->flags |= IOSQE_FIXED_FILE;
+		sqe->user_data = 0;
+	}
 }
 
 c_listening_socket_overseer::~c_listening_socket_overseer(void)

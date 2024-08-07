@@ -6,11 +6,18 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/06 01:11:55                                            */
-/*   Updated:  2024/08/06 04:54:21                                            */
+/*   Updated:  2024/08/07 04:55:06                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../../api.hpp"
 #include "c_client_connection_handler.hpp"
+#include "../../c_io_uring_overseer/c_io_uring_overseer.hpp"
+#include <cassert>
+#include <cstddef>
+#include <iostream>
+#include <liburing.h>
+#include <unistd.h>
 
 ;
 #pragma GCC diagnostic push
@@ -28,7 +35,7 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 ;
 
-void c_client_connection_handlers_overseer::c_client_connection_handler::set_index(int index_exemplum)
+void c_client_connection_handlers_overseer::c_client_connection_handler::set_index(unsigned int index_exemplum)
 {
 	index = index_exemplum;
 }
@@ -45,7 +52,7 @@ c_client_connection_handlers_overseer::c_client_connection_handler *
 	return (next_available);
 }
 
-int c_client_connection_handlers_overseer::c_client_connection_handler::get_index(void) const
+unsigned int c_client_connection_handlers_overseer::c_client_connection_handler::get_index(void) const
 {
 	return (index);
 }
@@ -60,6 +67,27 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::set_cur
 	t_e_handler_state current_state_exemplum)
 {
 	current_state = current_state_exemplum;
+}
+
+void c_client_connection_handlers_overseer::c_client_connection_handler::notify_io_completion(struct io_uring_cqe *cqe)
+{
+	struct io_uring_sqe *sqe;
+
+	if (current_state == e_handler_state::waiting_for_connection)
+	{
+		current_state = e_handler_state::waiting_for_headers;
+		sqe = g_io_uring_overseer->get_sqe();
+		assert(sqe != nullptr);
+		io_uring_prep_read_fixed(sqe, static_cast<int>(index), memory_shared_with_the_ring, MEM_PER_CONN, 0, 0);
+		sqe->flags |= IOSQE_FIXED_FILE;
+		sqe->user_data = index;
+		available_head = next_available;
+	}
+	else
+	{
+		write(STDOUT_FILENO, memory_shared_with_the_ring, static_cast<size_t>(cqe->res));
+		write(STDOUT_FILENO, "\n", 1);
+	}
 }
 
 #pragma GCC diagnostic pop

@@ -6,19 +6,23 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/27 02:14:07                                            */
-/*   Updated:  2024/08/06 01:49:33                                            */
+/*   Updated:  2024/08/07 04:05:09                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "c_io_uring_overseer.hpp"
+#include "../c_client_connection_handler_overseer/c_client_connection_handler_overseer.hpp"
+#include "../c_listening_socket_overseer/c_listening_socket_overseer.hpp"
 #include "../c_worker_id_to_text.hpp"
 #include "../internal_strerror.hpp"
+#include <cassert>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <liburing.h>
 #include <liburing/io_uring.h>
+#include <unistd.h>
 
 ;
 #pragma GCC diagnostic push
@@ -110,6 +114,54 @@ void c_io_uring_overseer::register_file(int fd, unsigned int pos)
 uint8_t *c_io_uring_overseer::get_shared_buffer(void)
 {
 	return (shared_buffer);
+}
+
+void c_io_uring_overseer::start_loop(void)
+{
+	struct io_uring_sqe *sqe;
+	struct io_uring_cqe *cqe;
+	int                  res;
+
+	sqe = io_uring_get_sqe(&ring);
+	assert(sqe != nullptr);
+	io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
+								g_client_connection_handlers_overseer->get_next_connection_handler_index());
+	sqe->flags |= IOSQE_FIXED_FILE;
+	sqe->user_data = 0;
+	io_uring_submit(&ring);
+	while (true)
+	{
+		res = io_uring_wait_cqe(&ring, &cqe);
+		if (res < 0)
+		{
+			std::cerr << std::string("PRIORITY=3\n") + "SYSLOG_FACILITY=3\n" + "SYSLOG_IDENTIFIER=\n" +
+							 c_worker_id_to_text::get_name_from_id(worker_id) +
+							 "MESSAGE=" + "failed to wait for io uring completions: " + internal_strerror(-res);
+			exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+		}
+		while (res == 0)
+		{
+			if (cqe->user_data == 0)
+			{
+				g_listening_socket_overseer->notify_completion(cqe);
+			}
+			else if (cqe->user_data <= DBCONN_POOL_SIZE)
+			{
+			}
+			else
+			{
+				g_client_connection_handlers_overseer->notify_completion(cqe);
+			}
+			io_uring_cqe_seen(&ring, cqe);
+			res = io_uring_peek_cqe(&ring, &cqe);
+		}
+		io_uring_submit(&ring);
+	}
+}
+
+struct io_uring_sqe *c_io_uring_overseer::get_sqe(void)
+{
+	return (io_uring_get_sqe(&ring));
 }
 
 #pragma GCC diagnostic pop
