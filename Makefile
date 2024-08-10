@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/08/07 04:58:56                                             #
+#    Updated:  2024/08/10 18:09:53                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ USER :=		$(shell echo $$USER)
 .DEFAULT_GOAL := all
 
 create_schema:
+	@mkdir /home/superuser/pong/db/config/conf.d 2>/dev/null || true
 	@sudo -u pong_role /usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" \
 		"config_file=./db/config/postgresql.conf" &> /dev/null &
 	@sleep 1
@@ -65,6 +66,7 @@ endif
 set_permissions:
 	@sudo chown -R pong_role db/data/main
 	@sudo -u pong_role chmod 700 db/data/main
+	@sudo chown pong_role api_sockets/
 
 config_system: register_test_domain add_user_to_ssl_group create_run_dir set_permissions
 	@grep -Fxq "vm.overcommit_memory=1" "/etc/sysctl.conf" || (echo "vm.overcommit_memory=1" | \
