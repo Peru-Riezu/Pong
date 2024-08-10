@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/06 01:11:55                                            */
-/*   Updated:  2024/08/10 21:02:14                                            */
+/*   Updated:  2024/08/11 00:18:33                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 #pragma GCC diagnostic ignored "-Wc++20-designator"
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 #pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wc99-designator"
 ;
 
 void c_client_connection_handlers_overseer::c_client_connection_handler::set_index(unsigned int index_exemplum)
@@ -71,7 +72,9 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::set_cur
 	current_state = current_state_exemplum;
 }
 
-void c_client_connection_handlers_overseer::c_client_connection_handler::waiting_for_connection(struct io_uring_cqe *cqe)
+// NOLINTNEXTLINE
+void c_client_connection_handlers_overseer::c_client_connection_handler::waiting_for_connection(
+	struct io_uring_cqe *cqe)
 {
 	struct io_uring_sqe *sqe;
 
@@ -84,21 +87,24 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::waiting
 	available_head = next_available;
 }
 
+void c_client_connection_handlers_overseer::c_client_connection_handler::waiting_for_headers(struct io_uring_cqe *cqe)
+{
+	if (cqe->res < 1)
+	{
+		if (cqe->res < 0)
+		{
+		}
+		// close_connection()
+	}
+}
+
 void c_client_connection_handlers_overseer::c_client_connection_handler::notify_io_completion(struct io_uring_cqe *cqe)
 {
+	void (c_client_connection_handler::*table[])(struct io_uring_cqe *cqe) = {
+		[e_handler_state::waiting_for_connection] = &c_client_connection_handler::waiting_for_connection,
+		[e_handler_state::waiting_for_headers] = &c_client_connection_handler::waiting_for_headers};
 
-	switch (current_state)
-	{
-		case (e_handler_state::waiting_for_connection):
-		{
-			break;
-		}
-		case (e_handler_state::waiting_for_headers):
-		{
-			// write(STDOUT_FILENO, memory_shared_with_the_ring, static_cast<size_t>(cqe->res));
-			// write(STDOUT_FILENO, "\n", 1);
-		}
-	}
+	(this->*table[current_state])(cqe);
 }
 
 #pragma GCC diagnostic pop

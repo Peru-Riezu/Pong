@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 16:25:15                                            */
-/*   Updated:  2024/08/10 21:12:51                                            */
+/*   Updated:  2024/08/11 00:08:38                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,13 +71,12 @@ class c_client_connection_handlers_overseer::c_client_connection_handler
 		void                         notify_query_completion(void *result);
 		void                         parse_headers_and_get_new_state(void);
 
-
-		void                         waiting_for_connection(struct io_uring_cqe *cqe)
-
 		// all posible client_connection_handler states in a enum
 		struct e_handler_state;
 
-
+		// a function for all states
+		void waiting_for_connection(struct io_uring_cqe *cqe);
+		void waiting_for_headers(struct io_uring_cqe *cqe);
 };
 
 #pragma GCC diagnostic pop

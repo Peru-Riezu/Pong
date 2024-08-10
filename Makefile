@@ -6,7 +6,7 @@
 #    github:   https://github.com/priezu-m                                     #
 #    Licence:  GPLv3                                                           #
 #    Created:  2023/09/27 18:57:07                                             #
-#    Updated:  2024/08/10 18:09:53                                             #
+#    Updated:  2024/08/10 23:43:00                                             #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ USER :=		$(shell echo $$USER)
 .DEFAULT_GOAL := all
 
 create_schema:
-	@mkdir /home/superuser/pong/db/config/conf.d 2>/dev/null || true
+	@mkdir /home/$(USER)/pong/db/config/conf.d 2>/dev/null || true
 	@sudo -u pong_role /usr/lib/postgresql/15/bin/postgres "-D" "./db/data/main" "-c" \
 		"config_file=./db/config/postgresql.conf" &> /dev/null &
 	@sleep 1
@@ -41,6 +41,7 @@ register_test_domain: /usr/local/share/ca-certificates/pong.com.crt
 
 create_run_dir:
 	-@sudo mkdir /var/run/pong_db &> /dev/null || true
+	-@sudo mkdir api_sockets &> /dev/null || true
 	-@sudo chown pong_role /var/run/pong_db &> /dev/null || true
 	-@sudo -u pong_role mkdir ./db/config/conf.d/ &> /dev/null || true
 	-@sudo -u pong_role mkdir ./db/data/main/pg_notify/ &> /dev/null || true
