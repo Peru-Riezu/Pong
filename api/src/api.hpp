@@ -52,7 +52,7 @@ _Static_assert(MEM_PER_CONN >= 4480, ""); // the minimum size of the uninx domai
 										  // and a message contains 128 bytes of headers
 _Static_assert(MAX_CONN_PER_WORKER > 0, "");
 
-//#define DBCONN_POOL_SIZE 3334
+// #define DBCONN_POOL_SIZE 3334
 #define DBCONN_POOL_SIZE 100
 
 inline int             worker_id = 1;

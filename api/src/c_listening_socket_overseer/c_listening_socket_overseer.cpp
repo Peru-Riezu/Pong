@@ -86,7 +86,7 @@ void c_listening_socket_overseer::notify_completion(struct io_uring_cqe *cqe)
 		sqe = g_io_uring_overseer->get_sqe();
 		assert(sqe != nullptr);
 		io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
-							g_client_connection_handlers_overseer->get_next_connection_handler_index());
+									g_client_connection_handlers_overseer->get_next_connection_handler_index());
 		sqe->flags |= IOSQE_FIXED_FILE;
 		sqe->user_data = 0;
 		return;
@@ -99,7 +99,7 @@ void c_listening_socket_overseer::notify_completion(struct io_uring_cqe *cqe)
 		sqe = g_io_uring_overseer->get_sqe();
 		assert(sqe != nullptr);
 		io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
-							g_client_connection_handlers_overseer->get_next_connection_handler_index());
+									g_client_connection_handlers_overseer->get_next_connection_handler_index());
 		sqe->flags |= IOSQE_FIXED_FILE;
 		sqe->user_data = 0;
 	}

@@ -44,7 +44,7 @@ class c_client_connection_handlers_overseer
 	private:
 		class c_client_connection_handler;
 
-		c_client_connection_handler *handler_array;
+		c_client_connection_handler               *handler_array;
 		static inline c_client_connection_handler *available_head;
 		static inline c_client_connection_handler *available_tail;
 

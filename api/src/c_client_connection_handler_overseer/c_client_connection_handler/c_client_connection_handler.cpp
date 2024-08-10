@@ -6,17 +6,20 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/06 01:11:55                                            */
-/*   Updated:  2024/08/07 04:55:06                                            */
+/*   Updated:  2024/08/10 05:35:26                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../api.hpp"
 #include "c_client_connection_handler.hpp"
+#include "../../api.hpp"
 #include "../../c_io_uring_overseer/c_io_uring_overseer.hpp"
+#include "fcgi_defs.hpp"
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <liburing.h>
+#include <string>
 #include <unistd.h>
 
 ;
@@ -85,8 +88,8 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::notify_
 	}
 	else
 	{
-		write(STDOUT_FILENO, memory_shared_with_the_ring, static_cast<size_t>(cqe->res));
-		write(STDOUT_FILENO, "\n", 1);
+		// write(STDOUT_FILENO, memory_shared_with_the_ring, static_cast<size_t>(cqe->res));
+		// write(STDOUT_FILENO, "\n", 1);
 	}
 }
 
