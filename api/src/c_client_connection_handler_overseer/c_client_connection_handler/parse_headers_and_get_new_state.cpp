@@ -6,12 +6,13 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/13 19:45:54                                            */
-/*   Updated:  2024/08/06 04:53:38                                            */
+/*   Updated:  2024/08/14 01:15:58                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../c_token/c_token.hpp"
 #include "./c_client_connection_handler.hpp"
+#include "e_handler_state.hpp"
 #include <cctype>
 #include <map>
 
@@ -32,52 +33,8 @@
 #pragma GCC diagnostic ignored "-Wexit-time-destructors"
 ;
 
-static c_token get_method_token(char const *buffer)
-{
-	char const *beginning;
-	size_t      i;
-
-	i = 0;
-	while (isspace(buffer[i]) != 0)
-	{
-		i++;
-	}
-	beginning = &buffer[i];
-	while (isupper(buffer[i]) != 0)
-	{
-		i++;
-	}
-	if (i == 0)
-	{
-		return (c_token(beginning, beginning));
-	}
-	return (c_token(beginning, &buffer[i - 1]));
-}
-
-static c_token get_endpoint_token(char const *buffer)
-{
-	char const *beginning;
-	size_t      i;
-
-	i = 0;
-	while (isspace(buffer[i]) != 0)
-	{
-		i++;
-	}
-	beginning = &buffer[i];
-	i++;
-	while (islower(buffer[i]) != 0 || buffer[i] == '_')
-	{
-		i++;
-	}
-	if (i == 0)
-	{
-		return (c_token(beginning, beginning));
-	}
-	return (c_token(beginning, &buffer[i - 1]));
-}
-
-void c_client_connection_handlers_overseer::c_client_connection_handler::parse_headers_and_get_new_state(void)
+void c_client_connection_handlers_overseer::c_client_connection_handler::parse_headers_and_get_new_state(
+	s_fcgi_params *request_params)
 {
 	// clang-format off
 	static std::map<std::pair<c_token, c_token>, t_e_handler_state> const endpoint_to_state =
@@ -112,8 +69,8 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::parse_h
 			e_handler_state::post_endpoint::send_group_message::parsing},
 		{{c_token{"POST"}, c_token{"/send_match_events"}},
 			e_handler_state::post_endpoint::send_match_events::parsing},
-		{{c_token{"POST"}, c_token{"/acknowledge_direct_message_recived"}},
-			e_handler_state::post_endpoint::acknowledge_direct_message_recived::parsing},
+		{{c_token{"POST"}, c_token{"/acknowledge_direct_message_received"}},
+			e_handler_state::post_endpoint::acknowledge_direct_message_received::parsing},
 		{{c_token{"POST"}, c_token{"/acknowledge_direct_message_read"}},
 			e_handler_state::post_endpoint::acknowledge_direct_message_read::parsing},
 		{{c_token{"POST"}, c_token{"/acknowledge_group_message_read"}},
@@ -146,8 +103,8 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::parse_h
 			e_handler_state::put_endpoint::create_tournament::parsing},
 		{{c_token{"PUT"}, c_token{"/create_group_chat"}},
 			e_handler_state::put_endpoint::create_group_chat::parsing},
-		{{c_token{"PUT"}, c_token{"/acknowledge_group_message_recived"}},
-			e_handler_state::put_endpoint::acknowledge_group_message_recived::parsing},
+		{{c_token{"PUT"}, c_token{"/acknowledge_group_message_received"}},
+			e_handler_state::put_endpoint::acknowledge_group_message_received::parsing},
 		{{c_token{"PUT"}, c_token{"/ban"}},
 			e_handler_state::put_endpoint::ban::parsing},
 		{{c_token{"PUT"}, c_token{"/add_contact"}},
@@ -170,10 +127,8 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::parse_h
 			e_handler_state::delete_endpoint::leave_group_chat::parsing}
 	 };
 	// clang-format on
-	c_token const method = get_method_token(reinterpret_cast<char const *>(memory_shared_with_the_ring));
-	c_token const endpoint = get_endpoint_token(method.get_end() + 1);
-	std::map<std::pair<c_token, c_token>, t_e_handler_state>::const_iterator it =
-		endpoint_to_state.find(std::pair<c_token, c_token>(method, endpoint));
+	std::map<std::pair<c_token, c_token>, t_e_handler_state>::const_iterator it = endpoint_to_state.find(
+		std::pair<c_token, c_token>(request_params->request_method, request_params->fastcgi_script_name));
 
 	if (it == endpoint_to_state.end())
 	{

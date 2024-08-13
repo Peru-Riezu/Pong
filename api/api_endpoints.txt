@@ -39,9 +39,9 @@ post send_direct_message?name=()&session_token=()&recipient_name=() /* includes 
 post send_group_message?name=()&session_token=()&group_chat_id=() /* includes body */
 post send_match_events?name=()&session_token=() /* includes body */
 
-post acknowledge_direct_message_recived?name=()&session_token=()&message_id=()
+post acknowledge_direct_message_received?name=()&session_token=()&message_id=()
 post acknowledge_direct_message_read?name=()&session_token=()&message_id=()
-put  acknowledge_group_message_recived?name=()&session_token=()&message_id=()
+put  acknowledge_group_message_received?name=()&session_token=()&message_id=()
 post acknowledge_group_message_read?name=()&session_token=()&message_id=()
 
 post promote_group_user?name=()&session_token=()&group_chat_id=()&recipient_name=()

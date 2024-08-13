@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/07 07:11:35                                            */
-/*   Updated:  2024/08/07 04:06:37                                            */
+/*   Updated:  2024/08/11 02:51:10                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,12 @@ _Static_assert(MAX_CONN_PER_WORKER > 0, "");
 // #define DBCONN_POOL_SIZE 3334
 #define DBCONN_POOL_SIZE 100
 
+#define LOG_DEBUG        0
+#define LOG_INFO         1
+#define LOG_WARNING      2
+#define LOG_ERROR        3
+
 inline int             worker_id = 1;
+inline int             log_level = LOG_INFO;
 
 #pragma GCC diagnostic pop

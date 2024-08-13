@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/03 18:46:47                                            */
-/*   Updated:  2024/08/06 21:20:11                                            */
+/*   Updated:  2024/08/11 10:41:59                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "../c_worker_id_to_text.hpp"
 #include "../internal_strerror.hpp"
 #include "c_client_connection_handler/c_client_connection_handler.hpp"
+#include "c_client_connection_handler/e_handler_state.hpp"
 #include <cstdlib>
 #include <iostream>
 
@@ -59,7 +60,7 @@ c_client_connection_handlers_overseer::c_client_connection_handlers_overseer(voi
 	g_client_connection_handlers_overseer = this;
 }
 
-unsigned int c_client_connection_handlers_overseer::get_next_connection_handler_index(void) const
+unsigned int c_client_connection_handlers_overseer::get_next_connection_handler_index(void)
 {
 	return (available_head->get_index());
 }

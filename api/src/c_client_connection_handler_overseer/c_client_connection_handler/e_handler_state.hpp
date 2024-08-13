@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/10 18:51:01                                            */
-/*   Updated:  2024/08/10 19:07:14                                            */
+/*   Updated:  2024/08/11 10:47:54                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #pragma GCC diagnostic ignored "-Wpre-c++20-compat-pedantic"
 #pragma GCC diagnostic ignored "-Wc++20-designator"
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma GCC diagnostic ignored "-Wshadow"
 ;
 
 struct c_client_connection_handlers_overseer::c_client_connection_handler::e_handler_state
@@ -192,7 +193,7 @@ struct c_client_connection_handlers_overseer::c_client_connection_handler::e_han
 						};
 				};
 
-				struct acknowledge_direct_message_recived
+				struct acknowledge_direct_message_received
 				{
 						enum e_sub_state : t_e_handler_state
 						{
@@ -206,7 +207,7 @@ struct c_client_connection_handlers_overseer::c_client_connection_handler::e_han
 				{
 						enum e_sub_state : t_e_handler_state
 						{
-							parsing = acknowledge_direct_message_recived::sending_response + 1,
+							parsing = acknowledge_direct_message_received::sending_response + 1,
 							waiting_for_db_response,
 							sending_response
 						};
@@ -368,7 +369,7 @@ struct c_client_connection_handlers_overseer::c_client_connection_handler::e_han
 						};
 				};
 
-				struct acknowledge_group_message_recived
+				struct acknowledge_group_message_received
 				{
 						enum e_sub_state : t_e_handler_state
 						{
@@ -382,7 +383,7 @@ struct c_client_connection_handlers_overseer::c_client_connection_handler::e_han
 				{
 						enum e_sub_state : t_e_handler_state
 						{
-							parsing = acknowledge_group_message_recived::sending_response + 1,
+							parsing = acknowledge_group_message_received::sending_response + 1,
 							waiting_for_db_response,
 							sending_response
 						};

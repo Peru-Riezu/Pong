@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/03 03:49:19                                            */
-/*   Updated:  2024/08/06 22:33:19                                            */
+/*   Updated:  2024/08/12 06:25:25                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,20 +86,36 @@ void c_listening_socket_overseer::notify_completion(struct io_uring_cqe *cqe)
 		sqe = g_io_uring_overseer->get_sqe();
 		assert(sqe != nullptr);
 		io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
-									g_client_connection_handlers_overseer->get_next_connection_handler_index());
+									c_client_connection_handlers_overseer::get_next_connection_handler_index());
 		sqe->flags |= IOSQE_FIXED_FILE;
 		sqe->user_data = 0;
 		return;
 	}
 	available_handler_count--;
-	cqe->user_data = g_client_connection_handlers_overseer->get_next_connection_handler_index();
+	cqe->user_data = c_client_connection_handlers_overseer::get_next_connection_handler_index();
 	g_client_connection_handlers_overseer->notify_completion(cqe);
 	if (available_handler_count > 0)
 	{
 		sqe = g_io_uring_overseer->get_sqe();
 		assert(sqe != nullptr);
 		io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
-									g_client_connection_handlers_overseer->get_next_connection_handler_index());
+									c_client_connection_handlers_overseer::get_next_connection_handler_index());
+		sqe->flags |= IOSQE_FIXED_FILE;
+		sqe->user_data = 0;
+	}
+}
+
+void c_listening_socket_overseer::inform_connection_handler_freed(void)
+{
+	struct io_uring_sqe *sqe;
+
+	available_handler_count++;
+	if (available_handler_count == 1)
+	{
+		sqe = g_io_uring_overseer->get_sqe();
+		assert(sqe != nullptr);
+		io_uring_prep_accept_direct(sqe, 0, nullptr, nullptr, 0,
+									c_client_connection_handlers_overseer::get_next_connection_handler_index());
 		sqe->flags |= IOSQE_FIXED_FILE;
 		sqe->user_data = 0;
 	}

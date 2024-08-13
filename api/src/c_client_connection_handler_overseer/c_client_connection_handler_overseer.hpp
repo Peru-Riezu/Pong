@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/14 12:28:12                                            */
-/*   Updated:  2024/08/07 03:56:29                                            */
+/*   Updated:  2024/08/12 06:28:13                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class c_listening_socket_overseer;
 class c_dbconnection_pool_overseer;
 class c_io_uring_overseer;
 
-extern c_listening_socket_overseer  *g_listenning_socket_overseer;
+extern c_listening_socket_overseer  *g_listening_socket_overseer;
 extern c_dbconnection_pool_overseer *g_dbconnection_pool_overseer;
 extern c_io_uring_overseer          *g_io_uring_overseer;
 
@@ -52,10 +52,10 @@ class c_client_connection_handlers_overseer
 		c_client_connection_handlers_overseer(void);
 		~c_client_connection_handlers_overseer(void);
 
-		void         notify_handler_free(c_client_connection_handler *handler);
-		void         notify_completion(struct io_uring_cqe *cqe);
-		void         notify_query_completion(void *result, unsigned int original_issuer_index);
-		int unsigned get_next_connection_handler_index(void) const;
+		void                notify_handler_free(c_client_connection_handler *handler);
+		void                notify_completion(struct io_uring_cqe *cqe);
+		void                notify_query_completion(void *result, unsigned int original_issuer_index);
+		static int unsigned get_next_connection_handler_index(void);
 };
 
 #pragma GCC diagnostic pop

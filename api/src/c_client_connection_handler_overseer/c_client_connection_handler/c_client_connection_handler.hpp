@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/24 16:25:15                                            */
-/*   Updated:  2024/08/11 00:08:38                                            */
+/*   Updated:  2024/08/14 01:14:06                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,15 @@ class c_client_connection_handlers_overseer::c_client_connection_handler
 				c_token content_length;
 		};
 
+		void close_connection(void);
+
+		// a function for each state posible
+		s_fcgi_params *get_memory_for_params_from_shared_mem(void) const;
+
+		void           waiting_for_connection(struct io_uring_cqe *cqe);
+		void           waiting_for_headers(struct io_uring_cqe *cqe);
+		void           waiting_for_close(struct io_uring_cqe *cqe);
+
 	public:
 		c_client_connection_handler *get_next_available(void) const;
 		unsigned int                 get_index(void) const;
@@ -69,14 +78,10 @@ class c_client_connection_handlers_overseer::c_client_connection_handler
 		void                         set_current_state(t_e_handler_state current_state_exemplum);
 		void                         notify_io_completion(struct io_uring_cqe *cqe);
 		void                         notify_query_completion(void *result);
-		void                         parse_headers_and_get_new_state(void);
+		void                         parse_headers_and_get_new_state(s_fcgi_params *request_params);
 
 		// all posible client_connection_handler states in a enum
 		struct e_handler_state;
-
-		// a function for all states
-		void waiting_for_connection(struct io_uring_cqe *cqe);
-		void waiting_for_headers(struct io_uring_cqe *cqe);
 };
 
 #pragma GCC diagnostic pop

@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/10 19:06:41                                            */
-/*   Updated:  2024/08/10 19:33:08                                            */
+/*   Updated:  2024/08/12 06:19:59                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #pragma GCC diagnostic ignored "-Wpre-c++20-compat-pedantic"
 #pragma GCC diagnostic ignored "-Wc++20-designator"
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma GCC diagnostic ignored "-Wpadded"
 ;
 
 union u_params
@@ -144,9 +145,9 @@ union u_params
 
 		struct s_create_group_chat
 		{
+				unsigned char group_chat_name[30];
 				uint64_t      name;
 				uint64_t      session_token[4];
-				unsigned char group_chat_name[30];
 		} create_group_chat_params;
 
 		struct s_invite_to_group_chat
@@ -161,8 +162,8 @@ union u_params
 		{
 				uint64_t name;
 				uint64_t session_token[4];
-				int      tournament_id;
 				uint64_t recipient_name;
+				int      tournament_id;
 		} invite_to_tournament_params;
 
 		struct s_invite_to_match
@@ -184,8 +185,8 @@ union u_params
 		{
 				uint64_t name;
 				uint64_t session_token[4];
-				int      tournament_id;
 				uint64_t recipient_name;
+				int      tournament_id;
 		} invalidate_invite_to_match_params;
 
 		struct s_invalidate_invite_to_tournament
@@ -324,9 +325,9 @@ union u_params
 
 		struct s_create_account
 		{
+				unsigned char nick_name[30];
 				uint64_t      name;
 				uint64_t      password[4];
-				unsigned char nick_name[30];
 		} create_account_params;
 
 		struct s_delete_account

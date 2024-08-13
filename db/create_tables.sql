@@ -7,7 +7,7 @@ drop table tournament_invite_t cascade;
 drop table tournament_t cascade;
 drop table group_chat_subscription_t cascade;
 drop table group_chat_invite_t cascade;
-drop table group_chat_message_acknowleged_t cascade;
+drop table group_chat_message_acknowledged_t cascade;
 drop table group_chat_message_t cascade;
 drop table group_chat_t cascade;
 drop table ban_t cascade;
@@ -23,9 +23,9 @@ create table user_t
 	password char(44) not null, /* stored hashed */
 	deleted_account boolean not null default false,
 	session_token char(44) default null,
-	session_token_expieres timestamp default null,
-	incoming_message_manager_id integer default null, /* id of api worker handeling the incoming messages */
-	match_event_manager_id integer default null, /* id of api worker handeling the incoming match events */
+	session_token_expires timestamp default null,
+	incoming_message_manager_id integer default null, /* id of api worker handling the incoming messages */
+	match_event_manager_id integer default null, /* id of api worker handling the incoming match events */
 	messages_pending boolean default false not null,
 	nick_name varchar(30) not null,
 	join_date timestamp default now() not null,
@@ -89,7 +89,7 @@ create table group_chat_message_t
 	sent timestamp not null
 );
 
-create table group_chat_message_acknowleged_t
+create table group_chat_message_acknowledged_t
 (
 	message_id bigint references group_chat_message_t(id) not null,
 	recipient char(7) references user_t(name) not null,
