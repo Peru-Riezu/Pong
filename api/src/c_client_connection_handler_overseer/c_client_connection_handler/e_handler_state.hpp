@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/10 18:51:01                                            */
-/*   Updated:  2024/08/11 10:47:54                                            */
+/*   Updated:  2024/08/21 17:55:29                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,9 @@ struct c_client_connection_handlers_overseer::c_client_connection_handler::e_han
 			invalid_state,
 			waiting_for_connection,
 			waiting_for_headers,
-			waiting_for_close
+			waiting_for_write_completion,
+			closing,
+			waiting_for_close_completion
 		};
 
 		struct post_endpoint
@@ -47,7 +49,7 @@ struct c_client_connection_handlers_overseer::c_client_connection_handler::e_han
 				{
 						enum e_sub_state : t_e_handler_state
 						{
-							parsing = waiting_for_close + 1,
+							parsing = waiting_for_close_completion + 1,
 							waiting_for_db_response,
 							sending_response
 						};

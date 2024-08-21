@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/09 01:16:42                                            */
-/*   Updated:  2024/08/14 01:49:50                                            */
+/*   Updated:  2024/08/19 23:10:34                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,11 @@ struct s_fcgi_header
 		unsigned char padding_length;
 		unsigned char reserved;
 
-		void          to_string(void) const;
-		size_t        get_size(void) const;
+		size_t        get_size(void) const
+		{
+			return (FCGI_HEADER_LEN + (static_cast<size_t>(content_length_b1) << 8U) + content_length_b0 +
+					padding_length);
+		}
 };
 
 struct s_fcgi_name_value_pair
@@ -70,8 +73,10 @@ struct s_fcgi_name_value_pair
 		unsigned char name_length_b0;  /* nameLengthB0  >> 7 == 0 */
 		unsigned char value_length_b0; /* valueLengthB0 >> 7 == 0 */
 
-		void          to_string(void) const;
-		size_t        get_size(void) const;
+		size_t        get_size(void) const
+		{
+			return (name_length_b0 + value_length_b0);
+		}
 };
 
 struct s_fcgi_begin_request_body
@@ -80,8 +85,6 @@ struct s_fcgi_begin_request_body
 		unsigned char role_b0;
 		unsigned char flags;
 		unsigned char reserved[5];
-
-		void          to_string(void) const;
 };
 
 struct s_fcgi_end_request_body
@@ -92,8 +95,6 @@ struct s_fcgi_end_request_body
 		unsigned char app_status_b0;
 		unsigned char protocol_status;
 		unsigned char reserved[3];
-
-		void          to_string(void) const;
 };
 
 struct s_fcgi_end_request_record
@@ -101,8 +102,10 @@ struct s_fcgi_end_request_record
 		s_fcgi_header           header;
 		s_fcgi_end_request_body body;
 
-		void                    to_string(void) const;
-		size_t                  get_size(void) const;
+		size_t                  get_size(void) const
+		{
+			return (header.get_size());
+		}
 };
 
 struct s_fcgi_begin_request_record
@@ -110,16 +113,20 @@ struct s_fcgi_begin_request_record
 		s_fcgi_header             header;
 		s_fcgi_begin_request_body body;
 
-		void                      to_string(void) const;
-		size_t                    get_size(void) const;
+		size_t                    get_size(void) const
+		{
+			return (header.get_size());
+		}
 };
 
 struct s_fcgi_params_record
 {
 		s_fcgi_header header;
 
-		void          to_string(void) const;
-		size_t        get_size(void) const;
+		size_t        get_size(void) const
+		{
+			return (header.get_size());
+		}
 };
 
 inline char const *fcgi_type_to_str(unsigned char type)

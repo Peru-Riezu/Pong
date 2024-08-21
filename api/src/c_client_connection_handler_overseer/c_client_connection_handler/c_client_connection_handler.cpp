@@ -6,23 +6,18 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/08/06 01:11:55                                            */
-/*   Updated:  2024/08/14 01:54:06                                            */
+/*   Updated:  2024/08/21 21:29:45                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "c_client_connection_handler.hpp"
-#include "../../api.hpp"
 #include "../../c_io_uring_overseer/c_io_uring_overseer.hpp"
 #include "../../c_listening_socket_overseer/c_listening_socket_overseer.hpp"
-#include "../../c_worker_id_to_text.hpp"
-#include "../../internal_strerror.hpp"
 #include "e_handler_state.hpp"
 #include "fcgi_defs.hpp"
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
 #include <liburing.h>
 #include <unistd.h>
 
@@ -42,6 +37,7 @@
 #pragma GCC diagnostic ignored "-Wc++98-compat-extra-semi"
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #pragma GCC diagnostic ignored "-Wc99-designator"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 ;
 
 void c_client_connection_handlers_overseer::c_client_connection_handler::set_index(unsigned int index_exemplum)
@@ -78,139 +74,68 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::set_cur
 	current_state = current_state_exemplum;
 }
 
-void c_client_connection_handlers_overseer::c_client_connection_handler::waiting_for_close(struct io_uring_cqe
-																						   __attribute__((unused)) *
-																						   cqe)
-{
-	available_tail->next_available = this;
-	available_tail = this;
-	next_available = nullptr;
-	current_state = e_handler_state::waiting_for_connection;
-	g_listening_socket_overseer->inform_connection_handler_freed();
-}
-
-void c_client_connection_handlers_overseer::c_client_connection_handler::waiting_for_connection(
-	struct io_uring_cqe __attribute__((unused)) * cqe)
+void c_client_connection_handlers_overseer::c_client_connection_handler::close_connection(c_client_connection_handler *t)
 {
 	struct io_uring_sqe *sqe;
 
-	current_state = e_handler_state::waiting_for_headers;
 	sqe = g_io_uring_overseer->get_sqe();
 	assert(sqe != nullptr);
-	io_uring_prep_read_fixed(sqe, static_cast<int>(index), memory_shared_with_the_ring, MEM_PER_CONN, 0, 0);
+	io_uring_prep_close_direct(sqe, t->index);
+	sqe->user_data = t->index;
+	t->current_state = e_handler_state::waiting_for_close_completion;
+}
+
+void c_client_connection_handlers_overseer::c_client_connection_handler::handle_malformed_request(void)
+{
+	struct io_uring_sqe *sqe;
+	char const          *response = "Status: 400 Bad Request\r\n\r\n";
+	s_fcgi_header       *begin_stdout_header = reinterpret_cast<s_fcgi_header *>(memory_shared_with_the_ring);
+	s_fcgi_header       *end_stdout_header =
+		reinterpret_cast<s_fcgi_header *>(memory_shared_with_the_ring + strlen(response) + FCGI_HEADER_LEN);
+	s_fcgi_end_request_record *end_request_record = reinterpret_cast<s_fcgi_end_request_record *>(
+		memory_shared_with_the_ring + strlen(response) + static_cast<uintptr_t>(FCGI_HEADER_LEN * 2));
+
+	pending_write_size =
+		static_cast<unsigned int>(strlen(response)) + FCGI_HEADER_LEN * 2 + sizeof(s_fcgi_end_request_record);
+
+	*begin_stdout_header = s_fcgi_header{.version = 1,
+										 .type = FCGI_STDOUT,
+										 .request_id_b1 = 0,
+										 .request_id_b0 = 1,
+										 .content_length_b1 = 0,
+										 .content_length_b0 = static_cast<unsigned char>(strlen(response)),
+										 .padding_length = 0};
+	*end_stdout_header = s_fcgi_header{.version = 1,
+									   .type = FCGI_STDOUT,
+									   .request_id_b1 = 0,
+									   .request_id_b0 = 1,
+									   .content_length_b1 = 0,
+									   .content_length_b0 = 0,
+									   .padding_length = 0};
+	*end_request_record = s_fcgi_end_request_record{.header.version = 1,
+													.header.type = FCGI_END_REQUEST,
+													.header.request_id_b1 = 0,
+													.header.request_id_b0 = 1,
+													.header.content_length_b1 = 0,
+													.header.content_length_b0 = sizeof(s_fcgi_end_request_body),
+													.header.padding_length = 0,
+													.body.app_status_b3 = 0,
+													.body.app_status_b2 = 0,
+													.body.app_status_b1 = 0,
+													.body.app_status_b0 = 0,
+													.body.protocol_status = 0};
+	memory_held_by_the_handler = 0;
+	memory_held_by_the_codec = 0;
+	next_sate = e_handler_state::closing;
+	memcpy(memory_shared_with_the_ring + FCGI_HEADER_LEN, response, strlen(response));
+	sqe = g_io_uring_overseer->get_sqe();
+	assert(sqe != nullptr);
+	io_uring_prep_send(sqe, static_cast<int>(index), memory_shared_with_the_ring, pending_write_size, 0);
 	sqe->flags |= IOSQE_FIXED_FILE;
+	sqe->flags |= IORING_RECVSEND_FIXED_BUF;
+	sqe->buf_index = 0;
 	sqe->user_data = index;
-	available_head = next_available;
-}
-
-void c_client_connection_handlers_overseer::c_client_connection_handler::close_connection(void)
-{
-	struct io_uring_sqe *sqe;
-
-	current_state = e_handler_state::waiting_for_close;
-	sqe = g_io_uring_overseer->get_sqe();
-	assert(sqe != nullptr);
-	io_uring_prep_close_direct(sqe, index);
-	sqe->user_data = index;
-}
-
-c_client_connection_handlers_overseer::c_client_connection_handler::s_fcgi_params *
-	c_client_connection_handlers_overseer::c_client_connection_handler::get_memory_for_params_from_shared_mem(
-		void) const
-{
-	return (reinterpret_cast<s_fcgi_params *>(
-		(memory_shared_with_the_ring + MEM_PER_CONN - sizeof(s_fcgi_params) - 1) -
-		(reinterpret_cast<size_t>(memory_shared_with_the_ring + MEM_PER_CONN - sizeof(s_fcgi_params) - 1) %
-		 alignof(s_fcgi_params))));
-}
-
-static s_fcgi_begin_request_record *get_beginning_record_from_shared_mem(uint8_t *memory_shared_with_the_ring)
-{
-	return (reinterpret_cast<s_fcgi_begin_request_record *>(memory_shared_with_the_ring));
-}
-
-static s_fcgi_params_record *get_param_records_from_begin_record(s_fcgi_begin_request_record *begin_record)
-{
-	return (reinterpret_cast<s_fcgi_params_record *>(reinterpret_cast<uint8_t *>(begin_record) +
-													 sizeof(s_fcgi_begin_request_record) +
-													 begin_record->header.padding_length));
-}
-
-static s_fcgi_name_value_pair *get_name_value_pair_from_params_record(s_fcgi_params_record *params_record)
-{
-	return (reinterpret_cast<s_fcgi_name_value_pair *>(reinterpret_cast<uint8_t *>(params_record) +
-													   sizeof(s_fcgi_params_record)));
-}
-
-static c_token get_value_as_token_from_name_value_pair(s_fcgi_name_value_pair const *sizes)
-{
-	return (c_token{reinterpret_cast<char const *>(reinterpret_cast<uint8_t const *>(sizes) +
-												   sizeof(s_fcgi_name_value_pair) + sizes->name_length_b0),
-					reinterpret_cast<char const *>(reinterpret_cast<uint8_t const *>(sizes) +
-												   sizeof(s_fcgi_name_value_pair) + sizes->name_length_b0 +
-												   sizes->value_length_b0 - 1)});
-}
-
-static s_fcgi_name_value_pair const *get_name_value_pair_from_token_end(char const *token_end)
-{
-	return (reinterpret_cast<s_fcgi_name_value_pair const *>(token_end + 1));
-}
-
-static s_fcgi_params_record const *get_param_records_from_previus_record(s_fcgi_params_record *params_record)
-{
-	return (reinterpret_cast<s_fcgi_params_record const *>(reinterpret_cast<uint8_t *>(params_record) +
-														   params_record->get_size()));
-}
-
-static unsigned int get_memory_held_by_the_codec_after_flush(uint8_t                    *memory_shared_with_the_ring,
-															 s_fcgi_params_record const *empty_params_record,
-															 int                         read_size)
-{
-	return (static_cast<unsigned int>(
-		read_size - (reinterpret_cast<uint8_t const *>(empty_params_record + empty_params_record->get_size() - 1) -
-					 memory_shared_with_the_ring + 1)));
-}
-
-void c_client_connection_handlers_overseer::c_client_connection_handler::waiting_for_headers(struct io_uring_cqe *cqe)
-{
-	s_fcgi_params *const               request_params = get_memory_for_params_from_shared_mem();
-	s_fcgi_begin_request_record *const begin_record = get_beginning_record_from_shared_mem(memory_shared_with_the_ring);
-	s_fcgi_params_record *const        params_record = get_param_records_from_begin_record(begin_record);
-	s_fcgi_name_value_pair *const      sizes1 = get_name_value_pair_from_params_record(params_record);
-	c_token                            request_method = get_value_as_token_from_name_value_pair(sizes1);
-	s_fcgi_name_value_pair const *const sizes2 = get_name_value_pair_from_token_end(request_method.get_end());
-	c_token                             script_filename = get_value_as_token_from_name_value_pair(sizes2);
-	s_fcgi_name_value_pair const *const sizes3 = get_name_value_pair_from_token_end(script_filename.get_end());
-	c_token                             query_string = get_value_as_token_from_name_value_pair(sizes3);
-	s_fcgi_name_value_pair const *const sizes4 = get_name_value_pair_from_token_end(query_string.get_end());
-	c_token                             content_length = get_value_as_token_from_name_value_pair(sizes4);
-	s_fcgi_params_record const *const   empty_params_record = get_param_records_from_previus_record(params_record);
-
-	request_params->request_method = request_method;
-	request_params->fastcgi_script_name = script_filename;
-	request_params->query_string = query_string;
-	request_params->content_length = content_length;
-	memory_held_by_the_handler = static_cast<unsigned int>((memory_shared_with_the_ring + MEM_PER_CONN) -
-														   reinterpret_cast<uint8_t *>(request_params));
-	if (cqe->res <
-		static_cast<int>(begin_record->get_size() + params_record->get_size() + empty_params_record->get_size()))
-	{
-		if (log_level >= LOG_INFO && cqe->res < 0)
-		{
-			std::cerr << std::string("PRIORITY=6\n") + "SYSLOG_FACILITY=3\n" +
-							 "SYSLOG_IDENTIFIER=" + c_worker_id_to_text::get_name_from_id(worker_id) +
-							 "\nMESSAGE=" + "failed to accept connection: " + internal_strerror(errno);
-		}
-		close_connection();
-		return;
-	}
-	memory_held_by_the_codec =
-		get_memory_held_by_the_codec_after_flush(memory_shared_with_the_ring, empty_params_record, cqe->res);
-	if (memory_held_by_the_codec > 0)
-	{
-		memmove(memory_shared_with_the_ring, content_length.get_end(), memory_held_by_the_codec);
-	}
-	parse_headers_and_get_new_state(request_params);
+	current_state = e_handler_state::waiting_for_write_completion;
 }
 
 void c_client_connection_handlers_overseer::c_client_connection_handler::notify_io_completion(struct io_uring_cqe *cqe)
@@ -218,9 +143,20 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::notify_
 	void (c_client_connection_handler::*table[])(struct io_uring_cqe *cqe) = {
 		[e_handler_state::waiting_for_connection] = &c_client_connection_handler::waiting_for_connection,
 		[e_handler_state::waiting_for_headers] = &c_client_connection_handler::waiting_for_headers,
-		[e_handler_state::waiting_for_close] = &c_client_connection_handler::waiting_for_close};
+		[e_handler_state::waiting_for_close_completion] = &c_client_connection_handler::waiting_for_close,
+		[e_handler_state::waiting_for_write_completion] = &c_client_connection_handler::waiting_for_write_completion};
 
 	(this->*table[current_state])(cqe);
+}
+
+void c_client_connection_handlers_overseer::c_client_connection_handler::notify_internal_step_completion(void)
+{
+	void (*table[])(c_client_connection_handler *) = {
+		[e_handler_state::closing] = &c_client_connection_handler::close_connection,
+		[e_handler_state::get_endpoint::get_profile::parsing] =
+			&c_client_connection_handler::get_endpoint::get_profile::parsing};
+
+	table[next_sate](this);
 }
 
 #pragma GCC diagnostic pop
