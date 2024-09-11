@@ -74,7 +74,8 @@ void c_client_connection_handlers_overseer::c_client_connection_handler::set_cur
 	current_state = current_state_exemplum;
 }
 
-void c_client_connection_handlers_overseer::c_client_connection_handler::close_connection(c_client_connection_handler *t)
+void c_client_connection_handlers_overseer::c_client_connection_handler::close_connection(
+	c_client_connection_handler *t)
 {
 	struct io_uring_sqe *sqe;
 

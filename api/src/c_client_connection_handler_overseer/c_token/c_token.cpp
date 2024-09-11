@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 18:01:18                                            */
-/*   Updated:  2024/07/09 12:58:06                                            */
+/*   Updated:  2024/09/09 11:39:48                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,11 @@ std::strong_ordering c_token::operator<=>(c_token const &exemplum) const
 		return (std::strong_ordering::less);
 	}
 	return (cmp_res <=> 0);
+}
+
+char const &c_token::operator[](size_t i) const
+{
+	return (beginning[i]);
 }
 
 bool c_token::is_valid(void) const

@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/07/08 17:46:45                                            */
-/*   Updated:  2024/07/09 13:00:41                                            */
+/*   Updated:  2024/09/09 11:40:38                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ class c_token
 
 		c_token const       &operator=(c_token const &exemplum);
 		std::strong_ordering operator<=>(c_token const &exemplum) const;
+		char const          &operator[](size_t i) const;
 
 		bool                 is_valid(void) const;
 

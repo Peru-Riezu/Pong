@@ -70,18 +70,19 @@ class c_client_connection_handlers_overseer::c_client_connection_handler
 
 		// a function for each state posible
 
-		void waiting_for_connection(struct io_uring_cqe *cqe);
-		void waiting_for_headers(struct io_uring_cqe *cqe);
-		void waiting_for_close(struct io_uring_cqe *cqe);
-		void waiting_for_write_completion(struct io_uring_cqe *cqe);
+		void        waiting_for_connection(struct io_uring_cqe *cqe);
+		void        waiting_for_headers(struct io_uring_cqe *cqe);
+		void        waiting_for_close(struct io_uring_cqe *cqe);
+		void        waiting_for_write_completion(struct io_uring_cqe *cqe);
 
-		static void           close_connection(c_client_connection_handler *t);
+		static void close_connection(c_client_connection_handler *t);
+
 		struct get_endpoint
 		{
-			struct get_profile
-			{
-				static void parsing(c_client_connection_handler *t);
-			};
+				struct get_profile
+				{
+						static void parsing(c_client_connection_handler *t);
+				};
 		};
 
 	public:
