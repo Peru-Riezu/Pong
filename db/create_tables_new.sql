@@ -19,27 +19,25 @@ drop type action_code cascade;
 
 create table user_t
 (
-	name char(7) primary key, /* stored hashed, locale must have char size of 1 byte */
-	password char(44) not null, /* stored hashed */
+	name char(8) primary key, /* stored hashed, locale must have char size of 1 byte */
+	password char(32) not null, /* stored hashed */
 	deleted_account boolean not null default false,
-	session_token char(44) default null,
+	chalege_key integer default null, /* sent via 
+	session_token char(32) default null,
 	session_token_expires timestamp default null,
 	incoming_message_manager_id integer default null, /* id of api worker handling the incoming messages */
-	messages_pending boolean default false not null,
-	nick_name varchar(30) not null,
-	join_date timestamp default now() not null,
+	current_resource_usage integer not null default 0,
+	average_resource_usage integer not null default 0,
+	debt_limit integer not null default 10000,
+	resources_paid integer not null default 0,
+	resources_used integer not null default 0,
+	last_resource_usage_change timestamp not null default 0,
+	messages_pending boolean not null default false,
+	nick_name varchar(32) not null,
+	join_date timestamp not null default now(),
 	profile_picture bytea default null,
 	bio varchar(1024) default null
 );
-
-	normal_matches_won integer not null default 0,
-	normal_matches_lost integer not null default 0,
-	normal_matches_drawn integer not null default 0,
-	tournament_matches_won integer not null default 0,
-	tournament_matches_lost integer not null default 0,
-	tournament_matches_drawn integer not null default 0,
-	tournaments_won integer not null default 0,
-	tournaments_played integer not null default 0
 
 insert into user_t (name, password, nick_name, join_date) values
 ('', '', 'Ancillary message sender', to_timestamp('1-01-01 0:0:0', 'YYYY-MM-DD HH24:MI:SS')),
@@ -51,16 +49,16 @@ insert into user_t (name, password, nick_name, join_date) values
 
 create table contact_t
 (
-	name char(7) references user_t(name) not null,
-	contact_name char(7) references user_t(name) not null,
+	name char(8) references user_t(name) not null,
+	contact_name char(8) references user_t(name) not null,
 	primary key (name, contact_name)
 );
 
 create table direct_message_t
 (
 	id bigserial primary key,
-	sender char(7) references user_t(name) not null,
-	recipient char(7) references user_t(name) not null,
+	sender char(8) references user_t(name) not null,
+	recipient char(8) references user_t(name) not null,
 	content text not null,
 	sent timestamp not null,
 	recived timestamp default null,
@@ -69,22 +67,22 @@ create table direct_message_t
 
 create table ban_t
 (
-	issuer char(7) references user_t(name) not null,
-	recipient char(7) references user_t(name) not null,
+	issuer char(8) references user_t(name) not null,
+	recipient char(8) references user_t(name) not null,
 	primary key (issuer, recipient)
 );
 
 create table group_chat_t
 (
 	id bigserial primary key,
-	owner_name char(7) references user_t(name) not null,
-	name varchar(30)
+	owner_name char(8) references user_t(name) not null,
+	name varchar(32)
 );
 
 create table group_chat_message_t
 (
 	id bigserial primary key,
-	sender char(7) references user_t(name) not null,
+	sender char(8) references user_t(name) not null,
 	recipient bigint references group_chat_t(id) not null,
 	content text not null,
 	sent timestamp not null
@@ -93,7 +91,7 @@ create table group_chat_message_t
 create table group_chat_message_acknowledged_t
 (
 	message_id bigint references group_chat_message_t(id) not null,
-	recipient char(7) references user_t(name) not null,
+	recipient char(8) references user_t(name) not null,
 	recived timestamp default null,
 	read timestamp default null,
 	primary key (message_id, recipient)
@@ -102,13 +100,13 @@ create table group_chat_message_acknowledged_t
 create table group_chat_invite_t
 (
 	group_chat_id bigint references group_chat_t(id) not null,
-	recipient char(7) references user_t(name) not null,
+	recipient char(8) references user_t(name) not null,
 	valid boolean not null default true
 );
 
 create table group_chat_subscription_t
 (
-	subscriber char(7) references user_t(name) not null,
+	subscriber char(8) references user_t(name) not null,
 	group_chat_id bigint references group_chat_t(id) not null,
 	admin boolean not null default false
 );
@@ -119,7 +117,7 @@ create table tournament_t
 	api_worker_id integer not null, /* For match-making pourposes, the same api worker must handle any given tournament */
                                     /* So when an api worker recives a request relating to a tournament it's not the */
                                     /* handler of, he will pass the request to the proper worker.*/
-	name varchar(30) not null,
+	name varchar(32) not null,
 	group_chat_id bigint references group_chat_t(id) not null,
 	tournament_started boolean not null default false,
 	tournament_over boolean not null default false
@@ -128,7 +126,7 @@ create table tournament_t
 create table tournament_invite_t
 (
 	tournament_id bigint references tournament_t(id) not null,
-	recipient char(7) references user_t(name) not null,
+	recipient char(8) references user_t(name) not null,
 	valid boolean not null default true
 );
 
@@ -142,13 +140,24 @@ create table tournament_subscription_t
 	left_tournament boolean not null default false
 );
 
+	normal_matches_won integer not null default 0,
+	normal_matches_lost integer not null default 0,
+	normal_matches_drawn integer not null default 0,
+	tournament_matches_won integer not null default 0,
+	tournament_matches_lost integer not null default 0,
+	tournament_matches_drawn integer not null default 0,
+	tournaments_won integer not null default 0,
+	tournaments_played integer not null default 0
+
+
+
 create table match_t
 (
 	id bigserial primary key,
 	tournament_id bigint references tournament_t(id) default null,
 	match_overseer_id integer default null, /* id of api worker overseeing the match */
-	player1_name char(7) references user_t(name) not null,
-	player2_name char(7) references user_t(name) not null,
+	player1_name char(8) references user_t(name) not null,
+	player2_name char(8) references user_t(name) not null,
 	player1_score integer not null default 0,
 	player2_score integer not null default 0,
 	match_began timestamp not null,
@@ -158,7 +167,7 @@ create table match_t
 create table match_invite_t
 (
 	match_id bigint references match_t(id) not null,
-	recipient char(7) references user_t(name) not null,
+	recipient char(8) references user_t(name) not null,
 	valid boolean not null default true
 );
 

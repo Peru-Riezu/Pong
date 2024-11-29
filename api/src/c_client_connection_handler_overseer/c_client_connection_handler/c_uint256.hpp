@@ -6,7 +6,7 @@
 /*   github:   https://github.com/priezu-m                                    */
 /*   Licence:  GPLv3                                                          */
 /*   Created:  2024/09/08 00:07:02                                            */
-/*   Updated:  2024/09/09 14:41:01                                            */
+/*   Updated:  2024/10/11 17:53:31                                            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,11 @@ class c_uint256
 
 	public:
 		explicit c_uint256(void) : val{0, 0}
+		{
+		}
+
+		explicit c_uint256(__uint128_t most_significant, __uint128_t least_significant)
+			: val{least_significant, most_significant}
 		{
 		}
 
@@ -77,6 +82,15 @@ class c_uint256
 			return (res);
 		}
 
+		c_uint256 operator+(c_uint256 const &addend) const
+		{
+			c_uint256 res(*this);
+
+			res = res + addend.val[0];
+			res.val[1] += addend.val[1];
+			return (res);
+		}
+
 		c_uint256 operator-(__uint128_t subtrahend) const
 		{
 			c_uint256 res(*this);
@@ -99,20 +113,10 @@ class c_uint256
 			{
 				if ((multiplier & (__uint128_t(1) << i)) != 0)
 				{
-					res = res + c_uint256(this->val[0] << i, this->val[0] >> (128U - i));
+					res = res + c_uint256(this->val[0] >> (128U - i), this->val[0] << i);
 				}
 			}
 			res.val[1] += this->val[1] * multiplier;
-			return (res);
-		}
-
-		c_uint256 operator/(__uint128_t divisor) const
-		{
-			c_uint256 res(*this);
-
-			res.val[0] /= divisor;
-			res.val[0] += res.val[1] % divisor;
-			res.val[1] /= divisor;
 			return (res);
 		}
 
